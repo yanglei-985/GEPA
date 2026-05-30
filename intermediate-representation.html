@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>编译器中间表示 IR（K-IR 的灵感来源）| 深读专题</title>
+<meta name="description" content="把'编译器中间表示 IR'讲清楚：源码为何要先转成便于分析优化的中间形态、IR 如何充当稳定统一的交换格式，以及它如何启发 S31 系统里的 K-IR 知识缓冲层。" />
+<style>
+  :root{
+    --bg:#fbfaf7; --panel:#f7f3ed; --accent:#c43b2f; --ink:#2b2b28;
+    --ink2:#3f3d38; --muted:#77736b; --line:rgba(120,112,100,.20);
+    --teal:#0b6f8f; --green:#2f8f5b; --amber:#b9791b; --purple:#6b4fa0;
+    --serif:'Noto Serif SC','Source Han Serif SC','Songti SC',STSong,Georgia,serif;
+    --sans:'Noto Sans SC','PingFang SC','Microsoft YaHei',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --mono:'JetBrains Mono','SF Mono',Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--ink2);font-family:var(--sans);line-height:1.9;-webkit-font-smoothing:antialiased;}
+  a{color:var(--teal);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  code{font-family:var(--mono);font-size:.86em;color:var(--teal);background:rgba(196,59,47,.08);padding:2px 6px;border-radius:4px;word-break:break-word;}
+
+  #progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:60;transition:width .1s linear;}
+
+  .topbar{position:sticky;top:0;z-index:50;background:rgba(251,250,247,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  .topbar-inner{max-width:1060px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;}
+  .brand{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;white-space:nowrap;}
+  .navlinks{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12.5px;}
+  .navlinks a{color:var(--muted);padding:2px 4px;border-radius:4px;}
+  .navlinks a:hover{color:var(--accent);text-decoration:none;background:rgba(196,59,47,.07);}
+  .home-link{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--muted);border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 12px;white-space:nowrap;}
+  .home-link:hover{color:var(--accent);border-color:var(--accent);text-decoration:none;}
+
+  .wrap{max-width:820px;margin:0 auto;padding:0 18px 80px;}
+  .hero{padding:42px 0 24px;border-bottom:1px solid var(--line);}
+  .kicker{margin:0 0 12px;color:var(--accent);font-size:12px;letter-spacing:3px;text-transform:uppercase;font-family:var(--mono);}
+  h1{margin:0 0 14px;color:var(--ink);font-size:30px;line-height:1.28;font-weight:800;font-family:var(--serif);letter-spacing:.3px;}
+  .sub{margin:0;color:var(--muted);font-size:14px;line-height:1.7;}
+  .meta-row{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0;}
+  .meta-row .pill{font-family:var(--mono);font-size:11.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:20px;padding:4px 11px;}
+
+  h2{margin:0;color:var(--ink);font-size:24px;line-height:1.35;font-weight:700;font-family:var(--serif);}
+  h2 .bar{display:inline-block;padding-left:12px;border-left:4px solid var(--accent);}
+  .sec-head{margin:50px 0 16px;}
+  .sec-head .kicker{margin-bottom:8px;}
+  h3{margin:26px 0 12px;color:var(--ink);font-size:18px;line-height:1.45;font-weight:700;font-family:var(--serif);}
+  p{margin:0 0 16px;font-size:15.5px;line-height:1.95;text-align:justify;word-break:break-word;}
+  strong{color:var(--ink);font-weight:700;}
+
+  .ctx-banner{margin:22px 0;padding:16px 18px;background:#fff4ef;border:1px solid rgba(196,59,47,.30);border-left:5px solid var(--accent);border-radius:14px;}
+  .ctx-banner p{margin:0;font-size:14px;line-height:1.8;color:#5d5952;}
+
+  .video-frame{position:relative;width:100%;padding-top:56.25%;border-radius:16px;overflow:hidden;background:#000;box-shadow:0 12px 34px rgba(0,0,0,.14);border:1px solid var(--line);}
+  .video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+  .video-cap{margin:10px 0 0;font-size:12.5px;color:var(--muted);text-align:center;}
+
+  .note-box{margin:20px 0 24px;padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:16px;}
+  .note-box .t{margin:0 0 6px;color:var(--ink);font-size:16px;font-weight:700;}
+  .note-box p:last-child{margin-bottom:0;}
+
+  .tldr{margin:18px 0;padding:18px 20px;background:#fff;border-left:4px solid var(--accent);border-radius:0 12px 12px 0;box-shadow:0 8px 24px rgba(0,0,0,.04);}
+  .tldr .t{margin:0 0 8px;font-family:var(--mono);font-size:11.5px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;}
+  .tldr p{margin:0;font-size:15.5px;line-height:1.9;}
+
+  /* ===== MIND MAP ===== */
+  .mindmap{margin:18px 0 8px;padding:22px 16px;background:linear-gradient(180deg,#fff,#fbf8f3);border:1px solid var(--line);border-radius:18px;}
+  .mm-center{max-width:520px;margin:0 auto 6px;text-align:center;background:var(--accent);color:#fff;border-radius:14px;padding:14px 18px;box-shadow:0 10px 26px rgba(196,59,47,.30);}
+  .mm-center .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:2px;opacity:.85;text-transform:uppercase;}
+  .mm-center .ttl{font-family:var(--serif);font-size:19px;font-weight:800;line-height:1.3;margin-top:3px;}
+  .mm-center .en{font-size:12px;opacity:.8;font-family:var(--mono);margin-top:3px;}
+  .mm-stem{width:2px;height:18px;background:var(--line);margin:0 auto;}
+  .mm-branches{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:6px;}
+  .mm-branch{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px;border-top:4px solid var(--bc,#c43b2f);box-shadow:0 6px 18px rgba(0,0,0,.04);}
+  .mm-branch .bh{display:flex;align-items:center;gap:9px;margin-bottom:9px;}
+  .mm-branch .bn{flex:none;width:26px;height:26px;border-radius:8px;background:var(--bc,#c43b2f);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;}
+  .mm-branch .bt{font-family:var(--serif);font-size:15.5px;font-weight:700;color:var(--ink);line-height:1.3;}
+  .mm-branch ul{margin:0;padding:0;list-style:none;}
+  .mm-branch li{position:relative;padding-left:15px;margin:0 0 6px;font-size:13px;line-height:1.6;color:var(--ink2);}
+  .mm-branch li::before{content:"";position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:50%;background:var(--bc,#c43b2f);}
+  .mm-branch li:last-child{margin-bottom:0;}
+  .mm-hint{margin:14px 0 0;text-align:center;font-size:12px;color:var(--muted);}
+
+  details.dd{margin:14px 0;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 8px 26px rgba(0,0,0,.03);}
+  details.dd>summary{list-style:none;cursor:pointer;padding:15px 18px;display:flex;align-items:flex-start;gap:10px;font-weight:700;color:var(--ink);font-size:15.5px;line-height:1.55;}
+  details.dd>summary::-webkit-details-marker{display:none;}
+  details.dd>summary .arw{color:var(--accent);font-family:var(--mono);font-size:13px;transition:transform .2s;margin-top:2px;}
+  details.dd[open]>summary .arw{transform:rotate(90deg);}
+  details.dd>summary .lbl{flex:1;}
+  details.dd>summary .chip{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.5px;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:2px 8px;white-space:nowrap;}
+  .dd-body{padding:2px 18px 16px;border-top:1px solid var(--line);}
+  .layer{margin:14px 0 0;padding-left:14px;border-left:2px solid var(--line);}
+  .layer .tag{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.5px;padding:1px 8px;border-radius:5px;margin-bottom:4px;}
+  .tag.point{color:var(--teal);background:rgba(11,111,143,.10);}
+  .tag.plain{color:var(--amber);background:rgba(185,121,27,.12);}
+  .tag.link{color:var(--green);background:rgba(47,143,91,.12);}
+  .tag.risk{color:var(--accent);background:rgba(196,59,47,.10);}
+  .layer p{margin:2px 0 0;font-size:14.3px;line-height:1.85;}
+
+  .cards{display:grid;grid-template-columns:1fr;gap:10px;margin:16px 0 6px;}
+  .rc{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;background:#fff;border:1px solid var(--line);border-radius:12px;transition:border-color .15s,transform .15s;}
+  .rc:hover{border-color:var(--accent);transform:translateY(-1px);text-decoration:none;}
+  .rc .ic{flex:none;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;}
+  .rc.yt .ic{background:#ffe9e7;color:var(--accent);}
+  .rc.doc .ic{background:#e7f0f4;color:var(--teal);}
+  .rc .tx{min-width:0;}
+  .rc .tt{display:block;color:var(--ink);font-weight:700;font-size:14px;line-height:1.4;}
+  .rc .ds{display:block;color:var(--muted);font-size:12px;margin-top:2px;word-break:break-word;}
+
+  .flow{font-family:var(--mono);font-size:12.5px;color:var(--teal);background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:14px 0;line-height:2;word-break:break-word;}
+  .endcap{margin:50px 0 0;padding:24px 0 0;border-top:1px solid var(--line);text-align:center;}
+  .endcap p{color:var(--muted);font-size:12.5px;text-align:center;}
+  .endcap a{font-weight:700;}
+  .backtop{position:fixed;right:18px;bottom:18px;z-index:40;width:42px;height:42px;border-radius:50%;background:var(--accent);color:#fff;border:0;cursor:pointer;font-size:18px;box-shadow:0 8px 20px rgba(196,59,47,.35);opacity:0;pointer-events:none;transition:opacity .2s;}
+  .backtop.show{opacity:1;pointer-events:auto;}
+  .disclaimer{font-size:12px;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:12px 14px;margin:16px 0;}
+
+  @media (max-width:560px){
+    h1{font-size:25px;} h2{font-size:20px;}
+    .navlinks{display:none;}
+    .mm-branches{grid-template-columns:1fr;}
+    .topbar-inner{justify-content:space-between;}
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">深读 · 中间表示 IR</span>
+    <nav class="navlinks">
+      <a href="#video">视频</a>
+      <a href="#tldr">一句话</a>
+      <a href="#map">思维导图</a>
+      <a href="#core">核心观点</a>
+      <a href="#bridge">接入S31</a>
+      <a href="#res">资料库</a>
+    </nav>
+    <a class="home-link" href="topics.html">← 专题库</a>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="hero" id="top">
+    <p class="kicker">Deep-Dive · Compiler IR</p>
+    <h1>编译器中间表示 IR：K-IR 的灵感来源<br/>Intermediate Representation</h1>
+    <p class="sub">先把"编译器里的中间表示"讲清楚，你才会明白 S31 系统里那层 K-IR（知识中间表示）为什么值得做——它俩本是同一种工程哲学的两个层级。</p>
+    <div class="meta-row">
+      <span class="pill">缩写：IR = Intermediate Representation（中间表示）</span>
+      <span class="pill">延伸：K-IR = Knowledge Intermediate Representation（知识中间表示）</span>
+      <span class="pill">来源：S31 主题 04 / 05</span>
+    </div>
+  </header>
+
+  <div class="ctx-banner">
+    <p>🔗 <strong>这页在 S31 系统里的位置：</strong>你主页 <a href="index.html#t4">主题 04「组合拳」里的 K-IR 卡</a> 与 <a href="index.html#t5">主题 05「K-IR 的地位」</a>，灵感都来自<strong>编译器的中间表示 IR（Intermediate Representation，中间表示）</strong>。K-IR 这层缓冲，目的就是<strong>降低"AI 与 AI 之间"传递知识时的损耗</strong>。看完这页，你会懂"为什么要在 Raw 和 Wiki 中间多插一层"。</p>
+  </div>
+
+  <!-- ===== VIDEO ===== -->
+  <section id="video">
+    <div class="sec-head">
+      <p class="kicker">watch</p>
+      <h2><span class="bar">先看视频（检索入口）</span></h2>
+    </div>
+    <a href="https://www.youtube.com/results?search_query=compiler+intermediate+representation+explained" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:16px;padding:22px 22px;background:linear-gradient(180deg,#fff,#fff4ef);border:1px solid rgba(196,59,47,.30);border-left:5px solid var(--accent);border-radius:16px;text-decoration:none;box-shadow:0 12px 30px rgba(0,0,0,.06);">
+      <span style="flex:none;width:54px;height:54px;border-radius:14px;background:#ffe9e7;color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:24px;">▶</span>
+      <span style="min-width:0;">
+        <span style="display:block;color:var(--ink);font-weight:800;font-size:16.5px;font-family:var(--serif);line-height:1.35;">在 YouTube 看「编译器中间表示」讲解视频 →</span>
+        <span style="display:block;color:var(--muted);font-size:12.8px;margin-top:4px;line-height:1.6;">这一主题没有一条"经过校验、标题完全吻合"的固定视频，故给你一个检索入口：点开即是相关视频列表（含 Computerphile、LLVM IR 讲解等）。建议优先看播放量高、近期更新的入门讲解。</span>
+      </span>
+    </a>
+    <p class="video-cap">为保证链接长期有效，本页不写死单条视频地址，改用 YouTube 检索入口。</p>
+    <div class="disclaimer">下面的整理对齐了维基百科与 GeeksforGeeks 等公开资料，并接回 S31 主页主题 04 / 05 的 K-IR 设计；外部内容均为<strong>转述与提炼</strong>，非逐字摘录。</div>
+  </section>
+
+  <!-- ===== TL;DR ===== -->
+  <section id="tldr">
+    <div class="sec-head">
+      <p class="kicker">in one line</p>
+      <h2><span class="bar">一句话核心</span></h2>
+    </div>
+    <div class="tldr">
+      <p class="t">TL;DR</p>
+      <p>源代码<strong>不会一步直接变成机器码</strong>：编译器先把它转成一种"<strong>便于分析与优化</strong>"的中间形态——这就是 <strong>IR（Intermediate Representation，中间表示）</strong>。IR 的最大价值，是给上下游一个<strong>稳定、统一的交换格式</strong>，减少损耗、方便复用。把同一招搬到"知识"上，就是 S31 的 <strong>K-IR（Knowledge Intermediate Representation，知识中间表示）</strong>：让知识别从"原始文本"硬跳到"成品词条"，中间多一层可追踪、可流转的结构化单元。</p>
+    </div>
+  </section>
+
+  <!-- ===== MIND MAP ===== -->
+  <section id="map">
+    <div class="sec-head">
+      <p class="kicker">mind map</p>
+      <h2><span class="bar">思维导图：一张图看懂 IR → K-IR</span></h2>
+    </div>
+    <p>中心是"中间表示 IR"，五条分支从"为什么要它"一路推到"它如何启发 K-IR"。先扫这张图建立全局，再去下面「核心观点」逐条深读。</p>
+
+    <div class="mindmap">
+      <div class="mm-center">
+        <div class="lab">central concept · 核心概念</div>
+        <div class="ttl">中间表示 IR</div>
+        <div class="en">Intermediate Representation · 源码与机器码之间的桥</div>
+      </div>
+      <div class="mm-stem"></div>
+
+      <div class="mm-branches">
+
+        <div class="mm-branch" style="--bc:#c43b2f;">
+          <div class="bh"><span class="bn">1</span><span class="bt">为什么需要 IR</span></div>
+          <ul>
+            <li>源码不直接变机器码</li>
+            <li>中间先转成"便于分析优化"的形态</li>
+            <li>把"理解源码"和"生成目标码"解耦</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#b9791b;">
+          <div class="bh"><span class="bn">2</span><span class="bt">核心价值</span></div>
+          <ul>
+            <li>给上下游一个<strong>稳定统一的交换格式</strong></li>
+            <li>多语言、多平台共用一套优化</li>
+            <li>减少每对之间直译的损耗</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#6b4fa0;">
+          <div class="bh"><span class="bn">3</span><span class="bt">IR 长什么样</span></div>
+          <ul>
+            <li>可以是<strong>树</strong>（如抽象语法树 AST）</li>
+            <li>可以是<strong>图</strong>（控制流图等）</li>
+            <li>可以是<strong>线性指令列表</strong>（三地址码、LLVM IR）</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#0b6f8f;">
+          <div class="bh"><span class="bn">4</span><span class="bt">搬到知识：K-IR</span></div>
+          <ul>
+            <li>Raw = 自由文本土壤</li>
+            <li>Wiki = 词条标本盒</li>
+            <li>K-IR = 结构化"卵层"，居中缓冲</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#2f8f5b;">
+          <div class="bh"><span class="bn">5</span><span class="bt">K-IR 的字段</span></div>
+          <ul>
+            <li><code>id / raw_id / type / status</code></li>
+            <li><code>source / value_level / value_score</code></li>
+            <li><code>related_outputs</code> 让单元可追踪</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#c43b2f;">
+          <div class="bh"><span class="bn">6</span><span class="bt">在 S31 的位置</span></div>
+          <ul>
+            <li>缓冲层降低"AI 与 AI"传输损耗</li>
+            <li>提高解耦性、提升鲁棒性</li>
+            <li>前提：大家遵守同一份格式</li>
+          </ul>
+        </div>
+
+      </div>
+      <p class="mm-hint">中心 → 6 条分支 → 各 2-3 个要点；与下文「核心观点」一一对应。</p>
+    </div>
+  </section>
+
+  <!-- ===== CORE VIEWPOINTS ===== -->
+  <section id="core">
+    <div class="sec-head">
+      <p class="kicker">core viewpoints</p>
+      <h2><span class="bar">核心观点：五条逐个讲透</span></h2>
+    </div>
+    <p>每张卡片三到四层：<span class="tag point">讲了什么</span>标准含义　<span class="tag plain">通俗解释</span>掰开揉碎　<span class="tag link">与你系统的关系</span>映射到 S31　<span class="tag risk">风险边界</span>哪里要小心。点开即读。</p>
+
+    <details class="dd" open>
+      <summary><span class="arw">▸</span><span class="lbl">① 源码不直接变机器码：中间先转成"便于分析优化"的形态</span><span class="chip">为什么需要</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>一个编译器（compiler，把源代码翻译成可执行程序的软件）不会把高级语言<strong>一步到位</strong>变成机器码。它先把源码解析、转换成一种<strong>中间形态——IR（Intermediate Representation，中间表示）</strong>。IR 比源码更规整、比机器码更抽象，<strong>专门为"分析和优化"而设计</strong>。绝大多数与目标机器无关的优化，都发生在 IR 这一层。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>就像写文章先列<strong>提纲</strong>再润色成稿：提纲不是最终文章，但正因为它结构清楚，你才好在它上面增删、调整、检查逻辑。IR 就是编译器的"提纲层"。</p>
+        </div>
+        <div class="layer"><span class="tag link">与你系统的关系</span>
+          <p>这正是 K-IR（Knowledge Intermediate Representation，知识中间表示）的出发点：知识也别从"原始文本（Raw）"硬跳到"成品词条（Wiki）"，中间留一层好分析、好加工的形态。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">② 给上下游一个"稳定统一的交换格式"，减少损耗</span><span class="chip">核心价值</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>IR 最被低估的价值，是充当<strong>统一的交换格式</strong>：前端（解析各种源语言）只需产出 IR，后端（生成各种目标机器码）只需消费 IR。这样 <strong>N 种语言 × M 种平台</strong>不必两两写转换器，大家都对接 IR 即可，工程量从相乘降到相加。著名的 LLVM（一套以语言无关 IR 为核心的编译器基础设施，名字现为专有名词）正是靠这一点统一了前后端。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>像翻译界的"<strong>枢轴语 / 中间语</strong>"：中→日→韩别每对都直译，先都翻成一种规范中间语，再各自落地——损耗更小、还能复用同一套校对。</p>
+        </div>
+        <div class="layer"><span class="tag link">与你系统的关系</span>
+          <p>原话说 K-IR 能"<strong>减少 AI 与 AI 之间的传输损耗</strong>"，说的就是这件事：让多个 AI/脚本只交换格式统一的 K-IR 单元，而不是互相传一大段原始文本，少一道"各自重新理解"的损耗。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">③ IR 不只一种形态：树 / 图 / 线性指令列表</span><span class="chip">三种形态</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>IR 没有唯一长相，常见三类：<strong>树形</strong>——如 AST（Abstract Syntax Tree，抽象语法树），贴近源码结构；<strong>图形</strong>——如控制流图，适合分析分支与数据流；<strong>线性</strong>——如三地址码、字节码、LLVM IR，像一串简化指令，贴近机器。一个编译器里甚至会<strong>同时存在多种 IR</strong>，从高层逐步"降级"到低层。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>同一份内容可以做成"思维导图（树）""流程图（图）""分步清单（线性）"。形态不同，是因为<strong>不同分析任务适合不同结构</strong>，并非谁优谁劣。</p>
+        </div>
+        <div class="layer"><span class="tag link">与你系统的关系</span>
+          <p>提醒你 K-IR 的"形态"也可按需选：既能用 YAML（YAML Ain't Markup Language，一种人类易读的数据格式）写成带字段的条目，也能组织成相互链接的知识图。先选"最方便加工与追踪"的那种。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>形态越多、转换越多，维护越重。除非真有需要，<strong>别一上来就堆叠多层 IR</strong>；K-IR 同理，先一种结构跑通。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">④ K-IR：把这套思路搬到"知识"——土壤 / 卵层 / 标本盒</span><span class="chip">从 IR 到 K-IR</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>K-IR（Knowledge Intermediate Representation，知识中间表示）把编译器那套"中间层"思想搬到知识工程里。S31 用了一组好比喻：<strong>Raw = 自由文本土壤</strong>（信息全但乱）；<strong>Wiki = 词条标本盒</strong>（已成型、规整可查）；<strong>K-IR = 知识尚未展开前的"结构化卵层"</strong>（已抽出结构、还没长成成品）。卵层让"养分"可以被搬运、计数、追溯，而不是一摊泥。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>土壤里的养分（Raw）→ 包好的种子/卵（K-IR）→ 长成的标本植株（Wiki）。中间这一"卵"，就是 IR 在知识世界里的对应物。</p>
+        </div>
+        <div class="layer"><span class="tag link">与你系统的关系</span>
+          <p>对应主页 <a href="index.html#t5">主题 05「K-IR 的地位：三态对比」</a>。理解了编译器为何要 IR，就理解了知识为何要 K-IR——<strong>同一种"中间缓冲"哲学的两个层级</strong>。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">⑤ K-IR 的字段让"知识单元"成为可追踪对象</span><span class="chip">字段设计</span></summary>
+      <div class="dd-body">
+        <div class="flow">id · raw_id · type · status · source · value_level · value_score · related_outputs</div>
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>K-IR 必须有自己的"身份字段"，才能从口头比喻落成<strong>可追踪对象</strong>：<code>id</code> 唯一标识；<code>raw_id</code> 反向链回原料；<code>type</code> 类型；<code>status</code> 当前状态（配合状态机流转）；<code>source</code> 来源；<code>value_level</code> 价值级别（链接 / SOP / Skill 的三级晋升）；<code>value_score</code> 价值打分；<code>related_outputs</code> 正向链到它产出过的成品。这套字段建立了"原料 ↔ 中间单元 ↔ 成品"的双向可追溯链路。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>像给每件行李挂标准化标签（来自哪、什么类型、到哪一站、值不值钱、被谁用过）。分拣系统扫一眼就知道怎么处理，而不必拆开重看。</p>
+        </div>
+        <div class="layer"><span class="tag link">与你系统的关系</span>
+          <p>这些字段直接对接主页主题 05 的 FSM（Finite State Machine，有限状态机）流转与"价值留下脚印"机制——<code>status</code> 管流转，<code>value_level / value_score</code> 管晋升。SOP = Standard Operating Procedure（标准作业流程）。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p><code>value_score</code> 这类"价值打分"<strong>谁来打、按什么标准打</strong>必须先定义，否则会塌成一堆主观噪声分，反而误导晋升判断。字段是好东西，但要配规则。</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===== BRIDGE TO S31 ===== -->
+  <section id="bridge">
+    <div class="sec-head">
+      <p class="kicker">connect</p>
+      <h2><span class="bar">把"中间表示"接回你的 S31 系统</span></h2>
+    </div>
+    <p>这页不是孤立的编译原理科普，它正是 K-IR 设计的"<strong>源头知识</strong>"。一句话对照：</p>
+
+    <div class="note-box">
+      <p class="t">编译器的 IR（代码层）　↔　你的 K-IR（知识工程层）</p>
+      <p style="margin:0;font-size:13.8px;line-height:1.9;color:#55514a;">两者都在做同一件事——<strong>在"原始输入"和"最终产物"之间，插一层稳定、统一、便于分析的中间表示，再在它之上做下游动作</strong>。IR 缓冲的是源码→机器码、降低跨语言跨平台的工程量；K-IR 缓冲的是 Raw→Wiki、降低 AI 与 AI 之间的传输损耗。理解了 IR，你就理解了为什么 K-IR 这层缓冲值得做。</p>
+    </div>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">落地提醒：缓冲层的价值，全靠"大家守同一份格式"</span><span class="chip">维护纪律</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span><p>IR/K-IR 多一层就多一层维护成本。它的红利依赖一条铁律：<strong>所有上下游都遵守同一份字段定义</strong>。各处随手改字段，缓冲垫就会变成新的混乱源。</p></div>
+        <div class="layer"><span class="tag link">怎么用</span><p>把 K-IR 的字段写进 Schema（结构契约，可被程序自动校验），用 YAML 落在文件头部（frontmatter，文件头部的元数据），让 Obsidian / 脚本 / AI 都读同一份状态。详见 <a href="index.html#t4">主页主题 04 →</a></p></div>
+        <div class="layer"><span class="tag risk">风险边界</span><p>别过度工程：早期<strong>先能跑通，再谈解耦</strong>；字段不够再加，而不是一次性设计到"完美"。</p></div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===== RESOURCES ===== -->
+  <section id="res">
+    <div class="sec-head">
+      <p class="kicker">library</p>
+      <h2><span class="bar">资料库：权威来源 + 检索入口</span></h2>
+    </div>
+    <div class="cards">
+      <a class="rc doc" href="https://en.wikipedia.org/wiki/Intermediate_representation" target="_blank" rel="noopener"><span class="ic">¶</span><span class="tx"><span class="tt">维基百科：Intermediate Representation（中间表示）</span><span class="ds">en.wikipedia.org · IR 的标准定义与设计目标</span></span></a>
+      <a class="rc doc" href="https://www.geeksforgeeks.org/compiler-design/introduction-to-intermediate-representationir/" target="_blank" rel="noopener"><span class="ic">¶</span><span class="tx"><span class="tt">GeeksforGeeks：Introduction to Intermediate Representation (IR)</span><span class="ds">geeksforgeeks.org · 编译器 IR 入门，含树/图/线性形态</span></span></a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=compiler+intermediate+representation+explained" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">YouTube 检索：compiler intermediate representation explained</span><span class="ds">点开即相关视频列表（Computerphile、LLVM IR 讲解等）</span></span></a>
+      <a class="rc doc" href="index.html#t5" target="_blank" rel="noopener"><span class="ic">¶</span><span class="tx"><span class="tt">回到原文：S31 主题 05「K-IR 的地位」</span><span class="ds">index.html · 对照"组合拳"与三态比喻（Raw / K-IR / Wiki）</span></span></a>
+    </div>
+  </section>
+
+  <div class="endcap">
+    <p style="font-family:var(--mono);letter-spacing:1px;">END · INTERMEDIATE REPRESENTATION DEEP-DIVE</p>
+    <p>本页为公开资料的转述与提炼，并接回 S31 的 K-IR 设计　·　如与原始资料有出入，以原始资料为准</p>
+    <p style="margin-top:10px;"><a href="topics.html">← 延伸专题库</a>　·　<a href="index.html">S31 主页</a></p>
+  </div>
+
+</div>
+
+<button class="backtop" id="backtop" aria-label="回到顶部">↑</button>
+
+<script>
+  var bar = document.getElementById('progress');
+  var backtop = document.getElementById('backtop');
+  function onScroll(){
+    var h = document.documentElement;
+    var scrolled = h.scrollTop;
+    var max = h.scrollHeight - h.clientHeight;
+    bar.style.width = (max > 0 ? (scrolled / max) * 100 : 0) + '%';
+    if(scrolled > 600){ backtop.classList.add('show'); } else { backtop.classList.remove('show'); }
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+  backtop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+  var navlinks = Array.prototype.slice.call(document.querySelectorAll('.navlinks a'));
+  function highlight(){
+    var pos = window.scrollY + 120;
+    var current = sections.length ? sections[0].id : null;
+    sections.forEach(function(s){ if(s.offsetTop <= pos){ current = s.id; } });
+    navlinks.forEach(function(a){
+      var on = a.getAttribute('href') === '#' + current;
+      a.style.color = on ? 'var(--accent)' : 'var(--muted)';
+      a.style.fontWeight = on ? '700' : '400';
+    });
+  }
+  window.addEventListener('scroll', highlight, {passive:true});
+  highlight();
+</script>
+</body>
+</html>

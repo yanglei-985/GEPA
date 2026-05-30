@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>JSON Schema 机读规则 | 深读（延伸专题）</title>
+<meta name="description" content="把 JSON Schema 这套机读规则层整理成核心观点、思维导图与深度解读，并接入 S31 知识系统的 Harness 与 Schema-as-Code 护栏层。" />
+<style>
+  :root{
+    --bg:#fbfaf7; --panel:#f7f3ed; --accent:#c43b2f; --ink:#2b2b28;
+    --ink2:#3f3d38; --muted:#77736b; --line:rgba(120,112,100,.20);
+    --teal:#0b6f8f; --green:#2f8f5b; --amber:#b9791b; --purple:#6b4fa0;
+    --serif:'Noto Serif SC','Source Han Serif SC','Songti SC',STSong,Georgia,serif;
+    --sans:'Noto Sans SC','PingFang SC','Microsoft YaHei',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --mono:'JetBrains Mono','SF Mono',Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--ink2);font-family:var(--sans);line-height:1.9;-webkit-font-smoothing:antialiased;}
+  a{color:var(--teal);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  code{font-family:var(--mono);font-size:.86em;color:var(--teal);background:rgba(196,59,47,.08);padding:2px 6px;border-radius:4px;word-break:break-word;}
+
+  #progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:60;transition:width .1s linear;}
+
+  .topbar{position:sticky;top:0;z-index:50;background:rgba(251,250,247,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  .topbar-inner{max-width:1060px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;}
+  .brand{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;white-space:nowrap;}
+  .navlinks{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12.5px;}
+  .navlinks a{color:var(--muted);padding:2px 4px;border-radius:4px;}
+  .navlinks a:hover{color:var(--accent);text-decoration:none;background:rgba(196,59,47,.07);}
+  .home-link{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--muted);border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 12px;white-space:nowrap;}
+  .home-link:hover{color:var(--accent);border-color:var(--accent);text-decoration:none;}
+
+  .wrap{max-width:820px;margin:0 auto;padding:0 18px 80px;}
+  .hero{padding:42px 0 24px;border-bottom:1px solid var(--line);}
+  .kicker{margin:0 0 12px;color:var(--accent);font-size:12px;letter-spacing:3px;text-transform:uppercase;font-family:var(--mono);}
+  h1{margin:0 0 14px;color:var(--ink);font-size:30px;line-height:1.28;font-weight:800;font-family:var(--serif);letter-spacing:.3px;}
+  .sub{margin:0;color:var(--muted);font-size:14px;line-height:1.7;}
+  .meta-row{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0;}
+  .meta-row .pill{font-family:var(--mono);font-size:11.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:20px;padding:4px 11px;}
+
+  h2{margin:0;color:var(--ink);font-size:24px;line-height:1.35;font-weight:700;font-family:var(--serif);}
+  h2 .bar{display:inline-block;padding-left:12px;border-left:4px solid var(--accent);}
+  .sec-head{margin:50px 0 16px;}
+  .sec-head .kicker{margin-bottom:8px;}
+  h3{margin:26px 0 12px;color:var(--ink);font-size:18px;line-height:1.45;font-weight:700;font-family:var(--serif);}
+  p{margin:0 0 16px;font-size:15.5px;line-height:1.95;text-align:justify;word-break:break-word;}
+  strong{color:var(--ink);font-weight:700;}
+
+  .ctx-banner{margin:22px 0;padding:16px 18px;background:#fff4ef;border:1px solid rgba(196,59,47,.30);border-left:5px solid var(--accent);border-radius:14px;}
+  .ctx-banner p{margin:0;font-size:14px;line-height:1.8;color:#5d5952;}
+
+  .video-frame{position:relative;width:100%;padding-top:56.25%;border-radius:16px;overflow:hidden;background:#000;box-shadow:0 12px 34px rgba(0,0,0,.14);border:1px solid var(--line);}
+  .video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+  .video-cap{margin:10px 0 0;font-size:12.5px;color:var(--muted);text-align:center;}
+
+  .note-box{margin:20px 0 24px;padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:16px;}
+  .note-box .t{margin:0 0 6px;color:var(--ink);font-size:16px;font-weight:700;}
+  .note-box p:last-child{margin-bottom:0;}
+
+  .tldr{margin:18px 0;padding:18px 20px;background:#fff;border-left:4px solid var(--accent);border-radius:0 12px 12px 0;box-shadow:0 8px 24px rgba(0,0,0,.04);}
+  .tldr .t{margin:0 0 8px;font-family:var(--mono);font-size:11.5px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;}
+  .tldr p{margin:0;font-size:15.5px;line-height:1.9;}
+
+  /* ===== MIND MAP ===== */
+  .mindmap{margin:18px 0 8px;padding:22px 16px;background:linear-gradient(180deg,#fff,#fbf8f3);border:1px solid var(--line);border-radius:18px;}
+  .mm-center{max-width:520px;margin:0 auto 6px;text-align:center;background:var(--accent);color:#fff;border-radius:14px;padding:14px 18px;box-shadow:0 10px 26px rgba(196,59,47,.30);}
+  .mm-center .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:2px;opacity:.85;text-transform:uppercase;}
+  .mm-center .ttl{font-family:var(--serif);font-size:19px;font-weight:800;line-height:1.3;margin-top:3px;}
+  .mm-center .en{font-size:12px;opacity:.8;font-family:var(--mono);margin-top:3px;}
+  .mm-stem{width:2px;height:18px;background:var(--line);margin:0 auto;}
+  .mm-branches{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:6px;}
+  .mm-branch{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px;border-top:4px solid var(--bc,#c43b2f);box-shadow:0 6px 18px rgba(0,0,0,.04);}
+  .mm-branch .bh{display:flex;align-items:center;gap:9px;margin-bottom:9px;}
+  .mm-branch .bn{flex:none;width:26px;height:26px;border-radius:8px;background:var(--bc,#c43b2f);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;}
+  .mm-branch .bt{font-family:var(--serif);font-size:15.5px;font-weight:700;color:var(--ink);line-height:1.3;}
+  .mm-branch ul{margin:0;padding:0;list-style:none;}
+  .mm-branch li{position:relative;padding-left:15px;margin:0 0 6px;font-size:13px;line-height:1.6;color:var(--ink2);}
+  .mm-branch li::before{content:"";position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:50%;background:var(--bc,#c43b2f);}
+  .mm-branch li:last-child{margin-bottom:0;}
+  .mm-hint{margin:14px 0 0;text-align:center;font-size:12px;color:var(--muted);}
+
+  details.dd{margin:14px 0;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 8px 26px rgba(0,0,0,.03);}
+  details.dd>summary{list-style:none;cursor:pointer;padding:15px 18px;display:flex;align-items:flex-start;gap:10px;font-weight:700;color:var(--ink);font-size:15.5px;line-height:1.55;}
+  details.dd>summary::-webkit-details-marker{display:none;}
+  details.dd>summary .arw{color:var(--accent);font-family:var(--mono);font-size:13px;transition:transform .2s;margin-top:2px;}
+  details.dd[open]>summary .arw{transform:rotate(90deg);}
+  details.dd>summary .lbl{flex:1;}
+  details.dd>summary .chip{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.5px;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:2px 8px;white-space:nowrap;}
+  .dd-body{padding:2px 18px 16px;border-top:1px solid var(--line);}
+  .layer{margin:14px 0 0;padding-left:14px;border-left:2px solid var(--line);}
+  .layer .tag{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.5px;padding:1px 8px;border-radius:5px;margin-bottom:4px;}
+  .tag.point{color:var(--teal);background:rgba(11,111,143,.10);}
+  .tag.plain{color:var(--amber);background:rgba(185,121,27,.12);}
+  .tag.link{color:var(--green);background:rgba(47,143,91,.12);}
+  .tag.risk{color:var(--accent);background:rgba(196,59,47,.10);}
+  .layer p{margin:2px 0 0;font-size:14.3px;line-height:1.85;}
+
+  .cards{display:grid;grid-template-columns:1fr;gap:10px;margin:16px 0 6px;}
+  .rc{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;background:#fff;border:1px solid var(--line);border-radius:12px;transition:border-color .15s,transform .15s;}
+  .rc:hover{border-color:var(--accent);transform:translateY(-1px);text-decoration:none;}
+  .rc .ic{flex:none;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;}
+  .rc.yt .ic{background:#ffe9e7;color:var(--accent);}
+  .rc.doc .ic{background:#e7f0f4;color:var(--teal);}
+  .rc .tx{min-width:0;}
+  .rc .tt{display:block;color:var(--ink);font-weight:700;font-size:14px;line-height:1.4;}
+  .rc .ds{display:block;color:var(--muted);font-size:12px;margin-top:2px;word-break:break-word;}
+
+  .flow{font-family:var(--mono);font-size:12.5px;color:var(--teal);background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:14px 0;line-height:2;word-break:break-word;}
+  .endcap{margin:50px 0 0;padding:24px 0 0;border-top:1px solid var(--line);text-align:center;}
+  .endcap p{color:var(--muted);font-size:12.5px;text-align:center;}
+  .endcap a{font-weight:700;}
+  .backtop{position:fixed;right:18px;bottom:18px;z-index:40;width:42px;height:42px;border-radius:50%;background:var(--accent);color:#fff;border:0;cursor:pointer;font-size:18px;box-shadow:0 8px 20px rgba(196,59,47,.35);opacity:0;pointer-events:none;transition:opacity .2s;}
+  .backtop.show{opacity:1;pointer-events:auto;}
+  .disclaimer{font-size:12px;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:12px 14px;margin:16px 0;}
+
+  @media (max-width:560px){
+    h1{font-size:25px;} h2{font-size:20px;}
+    .navlinks{display:none;}
+    .mm-branches{grid-template-columns:1fr;}
+    .topbar-inner{justify-content:space-between;}
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">延伸专题 · JSON SCHEMA</span>
+    <nav class="navlinks">
+      <a href="#video">视频</a>
+      <a href="#tldr">一句话</a>
+      <a href="#map">思维导图</a>
+      <a href="#core">核心观点</a>
+      <a href="#bridge">接入S31</a>
+      <a href="#res">资料库</a>
+    </nav>
+    <a class="home-link" href="topics.html">← 专题库</a>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="hero" id="top">
+    <p class="kicker">Deep-Dive · JSON Schema</p>
+    <h1>JSON Schema 机读规则<br/>JSON Schema · Schema-as-Code</h1>
+    <p class="sub">把"给机器读、给系统校验"的规则层整理成「核心观点 + 思维导图 + 深度解读」，并接回 S31 系统里束住 AI 幻觉的 Schema / Harness 护栏。</p>
+    <div class="meta-row">
+      <span class="pill">JSON = JavaScript Object Notation（JS 对象表示法）</span>
+      <span class="pill">Schema = 模式 / 规格（结构契约）</span>
+      <span class="pill">关键词：Schema-as-Code</span>
+    </div>
+  </header>
+
+  <div class="ctx-banner">
+    <p>🔗 <strong>为什么这页在这里：</strong>在你主页 <a href="index.html#t4">S31 的「组合拳」一章</a>里，讲话者说"<strong>Harness 和 Schema 负责把 AI 幻觉束住</strong>"；<a href="index.html#t5">「空度」三份提议</a>又把它升级成"<strong>Schema-as-Code</strong>（把规范文档变成可执行规则）"。<strong>JSON Schema 就是这套机读规则的代表实现</strong>——看完这页，你会明白为什么"结构契约"能拦下乱跑的 AI 输出。</p>
+  </div>
+
+  <!-- ===== VIDEO ===== -->
+  <section id="video">
+    <div class="sec-head">
+      <p class="kicker">watch</p>
+      <h2><span class="bar">先看讲解（已嵌入）</span></h2>
+    </div>
+    <div class="video-frame">
+      <iframe src="https://www.youtube.com/embed/kK-_gL7Vsc0" title="What is JSON Schema" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+    <p class="video-cap">▶ Automation Step by Step · 《What is JSON Schema》　·　<a href="https://www.youtube.com/watch?v=kK-_gL7Vsc0" target="_blank" rel="noopener">在 YouTube 打开</a></p>
+    <div class="disclaimer">下面的整理为对 JSON Schema 概念的<strong>转述与提炼</strong>，并对齐 json-schema.org 官方文档；如与原片/原文有出入，以原始来源为准。</div>
+  </section>
+
+  <!-- ===== TL;DR ===== -->
+  <section id="tldr">
+    <div class="sec-head">
+      <p class="kicker">in one line</p>
+      <h2><span class="bar">一句话核心</span></h2>
+    </div>
+    <div class="tldr">
+      <p class="t">TL;DR</p>
+      <p><strong>JSON Schema（JavaScript Object Notation Schema，JS 对象表示法的模式）</strong>是一份<strong>结构契约</strong>：它用机器能读的方式规定数据"必须有哪些字段、什么类型、什么取值范围"。它能被程序<strong>自动校验</strong>，不合规直接打回（像表单的必填校验），因此特别适合<strong>约束大语言模型的输出结构</strong>。但要记住：它只保证"<strong>结构对</strong>"，不保证"<strong>内容对</strong>"——胡编的合法数值照样能过校验，仍需业务规则兜底。</p>
+    </div>
+  </section>
+
+  <!-- ===== MIND MAP ===== -->
+  <section id="map">
+    <div class="sec-head">
+      <p class="kicker">mind map</p>
+      <h2><span class="bar">思维导图：一张图看懂 JSON Schema</span></h2>
+    </div>
+    <p>中心是 JSON Schema 的总定位，五条分支是支撑它的核心论点。先扫这张图建立全局，再去下面「核心观点」逐条深读。</p>
+
+    <div class="mindmap">
+      <div class="mm-center">
+        <div class="lab">central idea · 总定位</div>
+        <div class="ttl">给机器读的"结构契约"</div>
+        <div class="en">JSON Schema · 可执行、可自动校验的规则层</div>
+      </div>
+      <div class="mm-stem"></div>
+
+      <div class="mm-branches">
+
+        <div class="mm-branch" style="--bc:#c43b2f;">
+          <div class="bh"><span class="bn">1</span><span class="bt">它是什么</span></div>
+          <ul>
+            <li>规定字段、类型、取值范围的<strong>结构契约</strong></li>
+            <li>本身也用 JSON 写，几乎所有语言都能读</li>
+            <li>代表实现：<strong>JSON Schema</strong></li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#b9791b;">
+          <div class="bh"><span class="bn">2</span><span class="bt">能自动校验</span></div>
+          <ul>
+            <li>能被程序<strong>自动验证</strong>，不靠人自觉</li>
+            <li>不合规<strong>直接拦下/打回</strong></li>
+            <li>像表单"必填项校验"的自动门禁</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#6b4fa0;">
+          <div class="bh"><span class="bn">3</span><span class="bt">约束 AI 输出</span></div>
+          <ul>
+            <li>强制大语言模型吐出<strong>可预测的结构</strong></li>
+            <li>把"AI 能做什么"也写进 schema</li>
+            <li>输出先过校验再入库</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#0b6f8f;">
+          <div class="bh"><span class="bn">4</span><span class="bt">能力边界</span></div>
+          <ul>
+            <li>只保证"<strong>结构对</strong>"</li>
+            <li>不保证"<strong>内容对</strong>"——胡编数值也能过</li>
+            <li>仍需<strong>业务规则 + 人工抽检</strong>兜底</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#2f8f5b;">
+          <div class="bh"><span class="bn">5</span><span class="bt">Schema-as-Code</span></div>
+          <ul>
+            <li>规范从"<strong>给人看的文档</strong>"变"<strong>可执行规则</strong>"</li>
+            <li>承袭 Everything/Policy-as-Code 思潮</li>
+            <li>区别：墙上规章 vs 刷卡才开的闸机</li>
+          </ul>
+        </div>
+
+      </div>
+      <p class="mm-hint">中心 → 5 条分支 → 各 3 个要点；与下文「核心观点」编号一一对应。</p>
+    </div>
+  </section>
+
+  <!-- ===== CORE VIEWPOINTS ===== -->
+  <section id="core">
+    <div class="sec-head">
+      <p class="kicker">core viewpoints</p>
+      <h2><span class="bar">核心观点：逐条讲透</span></h2>
+    </div>
+    <p>每张卡片三层：<span class="tag point">讲了什么</span>概念原意　<span class="tag plain">通俗解释</span>掰开揉碎　<span class="tag link">与你系统的关系</span>它怎么映射到 S31。点开即读。</p>
+
+    <details class="dd" open>
+      <summary><span class="arw">▸</span><span class="lbl">① Schema = 结构契约：字段 / 类型 / 取值范围</span><span class="chip">机读契约</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p><strong>Schema（模式 / 规格）</strong>是一份<strong>结构契约</strong>：它规定一份数据或一段输出<strong>必须有哪些字段、每个字段是什么类型、取值落在什么范围</strong>。代表实现是 <strong>JSON Schema（JavaScript Object Notation Schema，JS 对象表示法的模式）</strong>。它本身也用 JSON 书写，因此几乎任何编程语言都能读懂，是一种跨语言通用的校验方案。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>把它想成一张"<strong>表格的填写规范</strong>"：姓名必填且是文字、年龄必填且是 0–150 的整数、邮箱要符合邮件格式。规范本身不是数据，而是描述"<strong>合格数据长什么样</strong>"。</p>
+        </div>
+        <div class="layer"><span class="tag link">与你系统的关系</span>
+          <p>在 S31 里，每类资产都配一份 schema：<code>schema_raw</code> 管原料、<code>schema_wiki</code> 管词条、<code>schema_output</code> 管交付物……让每条 <strong>K-IR（Knowledge Intermediate Representation，知识中间表示）</strong>单元都有统一、可校验的字段结构。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">② 能被程序自动校验，不合规直接打回</span><span class="chip">自动门禁</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>Schema 的灵魂在于"<strong>给机器读、给系统校验</strong>"，而不是给人看的手册。程序可以拿 schema 去<strong>自动验证</strong>一份数据：合规就放行，<strong>不合规就直接拦下、打回</strong>，根本进不了下一步。整个过程不依赖人的自觉。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>就像网页表单的"<strong>必填项校验</strong>"：你少填一栏、格式不对，提交键一按就被红字顶回来，根本提交不了。Schema 就是这套<strong>自动门禁</strong>，在数据入库前先过一道闸。</p>
+        </div>
+        <div class="layer"><span class="tag link">与你系统的关系</span>
+          <p>这正是 S31 里 <strong>Harness（马具 / 约束执行外壳）</strong>的关键一环：AI 生成的草稿必须<strong>先过 schema 校验再入库</strong>，不合格就回炉重来。校验 + 重试，是给"乱跑的马"套上的缰绳。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">③ 用来约束大语言模型（LLM）的输出结构</span><span class="chip">束住 AI</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>在 <strong>LLM（Large Language Model，大语言模型）</strong>场景里，Schema 用来<strong>强制模型吐出结构可预测的输出</strong>——比如必须是一个含特定字段的 JSON 对象，而不是一段自由发挥的散文。这样下游程序才能稳定地解析和使用模型的产出。讲话者还提出："<strong>把 AI 能做什么也写进 schema</strong>"。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>不给 schema，模型像"<strong>想怎么答就怎么答</strong>"的话痨；给了 schema，等于发给它一张"<strong>必须照着填的表</strong>"。填出来的东西机器就能直接收下，不用再人肉去猜格式。</p>
+        </div>
+        <div class="layer"><span class="tag link">与你系统的关系</span>
+          <p>对应 S31 把 AI 限定成"<strong>通过 K-IR 与系统交互的加工助手</strong>"：它能写的字段、能改的状态，都被 <code>schema_harness</code> 白名单框死。Schema 既约束"<strong>输出长什么样</strong>"，也约束"<strong>AI 被允许做什么</strong>"。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">④ 只保证"结构对"，不保证"内容对"</span><span class="chip">能力边界 · 风险</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>Schema 有个硬边界：它<strong>只能验证结构合法性，不能验证内容真实性</strong>。一个字段类型完全合法、范围也没越界，但数值是 AI 胡编的，照样能<strong>顺利通过校验</strong>。结构校验之外，仍然需要<strong>业务规则与人工抽检</strong>来兜底。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>别把"<strong>过了 schema 校验</strong>"误当成"<strong>这条数据是对的</strong>"。校验通过只意味着"<strong>格式没毛病</strong>"，幻觉内容可以穿着合法格式的外衣蒙混过关。务必再加一层语义/业务层的检查，关键数据还要人审。</p>
+        </div>
+        <div class="layer"><span class="tag link">与你系统的关系</span>
+          <p>这解释了为什么 S31 里 Schema 不能单打独斗，要和 <strong>Harness 的重试、最小权限护栏、E 区审计</strong>并存。结构闸门挡住"乱来的格式"，业务规则与人审挡住"合法外衣下的假内容"。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">⑤ Schema-as-Code：规范从"文档"变"可执行规则"</span><span class="chip">范式升级</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>"<strong>Schema-as-Code</strong>"承袭 <strong>Everything-as-Code / Policy-as-Code（一切皆代码 / 策略即代码）</strong>思潮：规则不再写成给人看的 Word 文档，而是写成<strong>能被程序执行和校验的代码或配置</strong>。一句"把 SCHEMA.md 变成可执行规则"，意思就是——规范不再是摆设，而会真的把不合规的东西<strong>拦下来</strong>。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>区别在于"<strong>贴在墙上的规章</strong>"和"<strong>刷卡才开的闸机</strong>"。前者靠员工自觉，没人看也就形同虚设；后者不合规就是过不去，规则被真正强制执行了。</p>
+        </div>
+        <div class="layer"><span class="tag link">与你系统的关系</span>
+          <p>S31 把每条规范写成 schema 字段或校验脚本，接到提交 / 入库环节自动跑、违规即报错。<strong>风险提醒</strong>：可执行规则也要维护与版本管理，规则写死又没人更新，就会变成挡路的"<strong>僵尸闸机</strong>"。</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===== BRIDGE TO S31 ===== -->
+  <section id="bridge">
+    <div class="sec-head">
+      <p class="kicker">connect</p>
+      <h2><span class="bar">把 JSON Schema 接回你的 S31 系统</span></h2>
+    </div>
+    <p>在主页里，"Harness 和 Schema 负责把 AI 幻觉束住"是一句口头直觉；"空度"提议把它展开成<strong>五张各管一段的 schema</strong>。一张对照说清分工：</p>
+
+    <div class="note-box">
+      <p class="t">五张 Schema 薄纸：各管一段，互不打架</p>
+      <p style="margin:0;font-size:13.8px;line-height:1.9;color:#55514a;"><code>schema_storage</code> 管目录边界与命名；<code>schema_raw</code> 管来源与原料状态；<code>schema_wiki</code> 管词条字段与知识编辑；<code>schema_output</code> 管交付物的类型 / 版本 / 受众；<code>schema_harness</code> 管状态转换、通知与流程规则。这是"<strong>单一职责 + 关注点分离</strong>"的体现——一份大而全的规则，被拆成五份各管一摊的小契约。</p>
+    </div>
+
+    <div class="flow">AI 生成草稿 → JSON Schema 校验（结构闸门）→ 业务规则 / 人审（内容闸门）→ 合格入库 ／ 不合格回炉</div>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">Schema 与 Harness、FSM 怎么配合</span><span class="chip">组合拳</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">Schema 的角色</span><p>定义"<strong>合格长什么样</strong>"——字段、类型、取值，以及"AI 被允许做什么"的白名单。它是静态的<strong>契约</strong>。</p></div>
+        <div class="layer"><span class="tag plain">Harness 的角色</span><p>把 Schema 用起来：<strong>每步只允许特定动作，输出过校验，不合格就重试</strong>。它是动态的<strong>执行外壳</strong>。</p></div>
+        <div class="layer"><span class="tag link">和 FSM 的关系</span><p><code>schema_harness</code> 还定义"哪个状态能转到哪个状态"，这正是 <strong>FSM（Finite State Machine，有限状态机）</strong>的转移表。Schema 立规矩、Harness 执行、FSM 管流转。详见 <a href="finite-state-machine.html">有限状态机专题 →</a> 与 <a href="index.html#t5">主页「空度」提议 →</a></p></div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===== RESOURCES ===== -->
+  <section id="res">
+    <div class="sec-head">
+      <p class="kicker">library</p>
+      <h2><span class="bar">资料库：讲解 + 权威来源</span></h2>
+    </div>
+    <div class="cards">
+      <a class="rc yt" href="https://www.youtube.com/watch?v=kK-_gL7Vsc0" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">讲解：What is JSON Schema（Automation Step by Step）</span><span class="ds">youtube.com/watch?v=kK-_gL7Vsc0 · 本页整理对照的视频</span></span></a>
+      <a class="rc doc" href="https://json-schema.org/blog/posts/json-schema-in-5-minutes" target="_blank" rel="noopener"><span class="ic">¶</span><span class="tx"><span class="tt">官方上手：JSON Schema in 5 minutes</span><span class="ds">json-schema.org · 五分钟看懂"可执行规则层"</span></span></a>
+      <a class="rc doc" href="https://json-schema.org/" target="_blank" rel="noopener"><span class="ic">¶</span><span class="tx"><span class="tt">官方站：JSON Schema 主页</span><span class="ds">json-schema.org · 规范、文档与各语言实现</span></span></a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=JSON+schema+validation+explained" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">YouTube 检索：JSON Schema 校验讲解更多版本</span><span class="ds">理解"机读规则层"如何自动拦下不合规数据</span></span></a>
+    </div>
+  </section>
+
+  <div class="endcap">
+    <p style="font-family:var(--mono);letter-spacing:1px;">END · JSON SCHEMA DEEP-DIVE</p>
+    <p>本页为 JSON Schema 概念的转述与提炼，已对齐 json-schema.org 官方文档　·　如有出入以原始来源为准</p>
+    <p style="margin-top:10px;"><a href="topics.html">← 延伸专题库</a>　·　<a href="index.html">S31 主页</a></p>
+  </div>
+
+</div>
+
+<button class="backtop" id="backtop" aria-label="回到顶部">↑</button>
+
+<script>
+  var bar = document.getElementById('progress');
+  var backtop = document.getElementById('backtop');
+  function onScroll(){
+    var h = document.documentElement;
+    var scrolled = h.scrollTop;
+    var max = h.scrollHeight - h.clientHeight;
+    bar.style.width = (max > 0 ? (scrolled / max) * 100 : 0) + '%';
+    if(scrolled > 600){ backtop.classList.add('show'); } else { backtop.classList.remove('show'); }
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+  backtop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+  var navlinks = Array.prototype.slice.call(document.querySelectorAll('.navlinks a'));
+  function highlight(){
+    var pos = window.scrollY + 120;
+    var current = sections.length ? sections[0].id : null;
+    sections.forEach(function(s){ if(s.offsetTop <= pos){ current = s.id; } });
+    navlinks.forEach(function(a){
+      var on = a.getAttribute('href') === '#' + current;
+      a.style.color = on ? 'var(--accent)' : 'var(--muted)';
+      a.style.fontWeight = on ? '700' : '400';
+    });
+  }
+  window.addEventListener('scroll', highlight, {passive:true});
+  highlight();
+</script>
+</body>
+</html>

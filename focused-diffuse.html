@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>专注模式 vs 发散模式（灵感与孵化）| 学习科学深读（延伸专题）</title>
+<meta name="description" content="把'高压后留白逼出灵感'这条直觉，对齐到孵化效应、专注/发散双模式与默认模式网络，并接入 S31 系统的创作节律。" />
+<style>
+  :root{
+    --bg:#fbfaf7; --panel:#f7f3ed; --accent:#c43b2f; --ink:#2b2b28;
+    --ink2:#3f3d38; --muted:#77736b; --line:rgba(120,112,100,.20);
+    --teal:#0b6f8f; --green:#2f8f5b; --amber:#b9791b; --purple:#6b4fa0;
+    --serif:'Noto Serif SC','Source Han Serif SC','Songti SC',STSong,Georgia,serif;
+    --sans:'Noto Sans SC','PingFang SC','Microsoft YaHei',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --mono:'JetBrains Mono','SF Mono',Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--ink2);font-family:var(--sans);line-height:1.9;-webkit-font-smoothing:antialiased;}
+  a{color:var(--teal);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  code{font-family:var(--mono);font-size:.86em;color:var(--teal);background:rgba(196,59,47,.08);padding:2px 6px;border-radius:4px;word-break:break-word;}
+
+  #progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:60;transition:width .1s linear;}
+
+  .topbar{position:sticky;top:0;z-index:50;background:rgba(251,250,247,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  .topbar-inner{max-width:1060px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;}
+  .brand{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;white-space:nowrap;}
+  .navlinks{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12.5px;}
+  .navlinks a{color:var(--muted);padding:2px 4px;border-radius:4px;}
+  .navlinks a:hover{color:var(--accent);text-decoration:none;background:rgba(196,59,47,.07);}
+  .home-link{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--muted);border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 12px;white-space:nowrap;}
+  .home-link:hover{color:var(--accent);border-color:var(--accent);text-decoration:none;}
+
+  .wrap{max-width:820px;margin:0 auto;padding:0 18px 80px;}
+  .hero{padding:42px 0 24px;border-bottom:1px solid var(--line);}
+  .kicker{margin:0 0 12px;color:var(--accent);font-size:12px;letter-spacing:3px;text-transform:uppercase;font-family:var(--mono);}
+  h1{margin:0 0 14px;color:var(--ink);font-size:30px;line-height:1.28;font-weight:800;font-family:var(--serif);letter-spacing:.3px;}
+  .sub{margin:0;color:var(--muted);font-size:14px;line-height:1.7;}
+  .meta-row{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0;}
+  .meta-row .pill{font-family:var(--mono);font-size:11.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:20px;padding:4px 11px;}
+
+  h2{margin:0;color:var(--ink);font-size:24px;line-height:1.35;font-weight:700;font-family:var(--serif);}
+  h2 .bar{display:inline-block;padding-left:12px;border-left:4px solid var(--accent);}
+  .sec-head{margin:50px 0 16px;}
+  .sec-head .kicker{margin-bottom:8px;}
+  h3{margin:26px 0 12px;color:var(--ink);font-size:18px;line-height:1.45;font-weight:700;font-family:var(--serif);}
+  p{margin:0 0 16px;font-size:15.5px;line-height:1.95;text-align:justify;word-break:break-word;}
+  strong{color:var(--ink);font-weight:700;}
+
+  /* link back to home / context banner */
+  .ctx-banner{margin:22px 0;padding:16px 18px;background:#fff4ef;border:1px solid rgba(196,59,47,.30);border-left:5px solid var(--accent);border-radius:14px;}
+  .ctx-banner p{margin:0;font-size:14px;line-height:1.8;color:#5d5952;}
+
+  /* video embed */
+  .video-frame{position:relative;width:100%;padding-top:56.25%;border-radius:16px;overflow:hidden;background:#000;box-shadow:0 12px 34px rgba(0,0,0,.14);border:1px solid var(--line);}
+  .video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+  .video-cap{margin:10px 0 0;font-size:12.5px;color:var(--muted);text-align:center;}
+
+  .note-box{margin:20px 0 24px;padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:16px;}
+  .note-box .t{margin:0 0 6px;color:var(--ink);font-size:16px;font-weight:700;}
+  .note-box p:last-child{margin-bottom:0;}
+
+  .tldr{margin:18px 0;padding:18px 20px;background:#fff;border-left:4px solid var(--accent);border-radius:0 12px 12px 0;box-shadow:0 8px 24px rgba(0,0,0,.04);}
+  .tldr .t{margin:0 0 8px;font-family:var(--mono);font-size:11.5px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;}
+  .tldr p{margin:0;font-size:15.5px;line-height:1.9;}
+
+  /* ===== MIND MAP ===== */
+  .mindmap{margin:18px 0 8px;padding:22px 16px;background:linear-gradient(180deg,#fff,#fbf8f3);border:1px solid var(--line);border-radius:18px;}
+  .mm-center{max-width:520px;margin:0 auto 6px;text-align:center;background:var(--accent);color:#fff;border-radius:14px;padding:14px 18px;box-shadow:0 10px 26px rgba(196,59,47,.30);}
+  .mm-center .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:2px;opacity:.85;text-transform:uppercase;}
+  .mm-center .ttl{font-family:var(--serif);font-size:19px;font-weight:800;line-height:1.3;margin-top:3px;}
+  .mm-center .en{font-size:12px;opacity:.8;font-family:var(--mono);margin-top:3px;}
+  .mm-stem{width:2px;height:18px;background:var(--line);margin:0 auto;}
+  .mm-branches{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:6px;}
+  .mm-branch{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px;border-top:4px solid var(--bc,#c43b2f);box-shadow:0 6px 18px rgba(0,0,0,.04);}
+  .mm-branch .bh{display:flex;align-items:center;gap:9px;margin-bottom:9px;}
+  .mm-branch .bn{flex:none;width:26px;height:26px;border-radius:8px;background:var(--bc,#c43b2f);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;}
+  .mm-branch .bt{font-family:var(--serif);font-size:15.5px;font-weight:700;color:var(--ink);line-height:1.3;}
+  .mm-branch ul{margin:0;padding:0;list-style:none;}
+  .mm-branch li{position:relative;padding-left:15px;margin:0 0 6px;font-size:13px;line-height:1.6;color:var(--ink2);}
+  .mm-branch li::before{content:"";position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:50%;background:var(--bc,#c43b2f);}
+  .mm-branch li:last-child{margin-bottom:0;}
+  .mm-hint{margin:14px 0 0;text-align:center;font-size:12px;color:var(--muted);}
+
+  /* deep-dive collapsible (same as index) */
+  details.dd{margin:14px 0;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 8px 26px rgba(0,0,0,.03);}
+  details.dd>summary{list-style:none;cursor:pointer;padding:15px 18px;display:flex;align-items:flex-start;gap:10px;font-weight:700;color:var(--ink);font-size:15.5px;line-height:1.55;}
+  details.dd>summary::-webkit-details-marker{display:none;}
+  details.dd>summary .arw{color:var(--accent);font-family:var(--mono);font-size:13px;transition:transform .2s;margin-top:2px;}
+  details.dd[open]>summary .arw{transform:rotate(90deg);}
+  details.dd>summary .lbl{flex:1;}
+  details.dd>summary .chip{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.5px;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:2px 8px;white-space:nowrap;}
+  .dd-body{padding:2px 18px 16px;border-top:1px solid var(--line);}
+  .layer{margin:14px 0 0;padding-left:14px;border-left:2px solid var(--line);}
+  .layer .tag{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.5px;padding:1px 8px;border-radius:5px;margin-bottom:4px;}
+  .tag.point{color:var(--teal);background:rgba(11,111,143,.10);}
+  .tag.plain{color:var(--amber);background:rgba(185,121,27,.12);}
+  .tag.link{color:var(--green);background:rgba(47,143,91,.12);}
+  .tag.risk{color:var(--accent);background:rgba(196,59,47,.10);}
+  .layer p{margin:2px 0 0;font-size:14.3px;line-height:1.85;}
+
+  .cards{display:grid;grid-template-columns:1fr;gap:10px;margin:16px 0 6px;}
+  .rc{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;background:#fff;border:1px solid var(--line);border-radius:12px;transition:border-color .15s,transform .15s;}
+  .rc:hover{border-color:var(--accent);transform:translateY(-1px);text-decoration:none;}
+  .rc .ic{flex:none;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;}
+  .rc.yt .ic{background:#ffe9e7;color:var(--accent);}
+  .rc.doc .ic{background:#e7f0f4;color:var(--teal);}
+  .rc .tx{min-width:0;}
+  .rc .tt{display:block;color:var(--ink);font-weight:700;font-size:14px;line-height:1.4;}
+  .rc .ds{display:block;color:var(--muted);font-size:12px;margin-top:2px;word-break:break-word;}
+
+  .flow{font-family:var(--mono);font-size:12.5px;color:var(--teal);background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:14px 0;line-height:2;word-break:break-word;}
+  .endcap{margin:50px 0 0;padding:24px 0 0;border-top:1px solid var(--line);text-align:center;}
+  .endcap p{color:var(--muted);font-size:12.5px;text-align:center;}
+  .endcap a{font-weight:700;}
+  .backtop{position:fixed;right:18px;bottom:18px;z-index:40;width:42px;height:42px;border-radius:50%;background:var(--accent);color:#fff;border:0;cursor:pointer;font-size:18px;box-shadow:0 8px 20px rgba(196,59,47,.35);opacity:0;pointer-events:none;transition:opacity .2s;}
+  .backtop.show{opacity:1;pointer-events:auto;}
+  .disclaimer{font-size:12px;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:12px 14px;margin:16px 0;}
+
+  @media (max-width:560px){
+    h1{font-size:25px;} h2{font-size:20px;}
+    .navlinks{display:none;}
+    .mm-branches{grid-template-columns:1fr;}
+    .topbar-inner{justify-content:space-between;}
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">延伸专题 · 专注/发散</span>
+    <nav class="navlinks">
+      <a href="#video">视频</a>
+      <a href="#tldr">一句话</a>
+      <a href="#map">思维导图</a>
+      <a href="#core">核心观点</a>
+      <a href="#bridge">接入S31</a>
+      <a href="#res">资料库</a>
+    </nav>
+    <a class="home-link" href="topics.html">← 专题库</a>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="hero" id="top">
+    <p class="kicker">Deep-Dive · Learning Science</p>
+    <h1>专注模式 vs 发散模式（灵感与孵化）<br/>Focused vs Diffuse Mode · Incubation</h1>
+    <p class="sub">把"灵感不是等来的，是高压后留白逼出来的"这条直觉，对齐到成熟的学习科学，并接回你 S31 系统里的创作节律。</p>
+    <div class="meta-row">
+      <span class="pill">关键词：孵化效应</span>
+      <span class="pill">Barbara Oakley · 专注/发散双模式</span>
+      <span class="pill">DMN = Default Mode Network（默认模式网络）</span>
+    </div>
+  </header>
+
+  <div class="ctx-banner">
+    <p>🔗 <strong>它在 S31 系统里的位置：</strong>这页对应主页 <a href="index.html#t1">Theme 01「灵感不是等来的，是高压后留白逼出来的」</a>。原文给的是一条可操作的灵感诱发流程；这页替你把它对齐到学习科学，讲清"<strong>为什么先高压、再留白，灵感才会反上来</strong>"。</p>
+  </div>
+
+  <!-- ===== VIDEO ===== -->
+  <section id="video">
+    <div class="sec-head">
+      <p class="kicker">watch</p>
+      <h2><span class="bar">先看原片（已嵌入）</span></h2>
+    </div>
+    <div class="video-frame">
+      <iframe src="https://www.youtube.com/embed/O96fE1E-rf8" title="Learning how to learn | Barbara Oakley | TEDxOaklandUniversity" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+    <p class="video-cap">▶ 《Learning how to learn | Barbara Oakley | TEDxOaklandUniversity》　·　<a href="https://www.youtube.com/watch?v=O96fE1E-rf8" target="_blank" rel="noopener">在 YouTube 打开</a></p>
+    <div class="disclaimer">下面的整理是对这套学习科学概念的<strong>转述与提炼</strong>（非逐字字幕），并对齐了原文 Theme 01 的语境；如与原片有出入，以原片为准。</div>
+  </section>
+
+  <!-- ===== TL;DR ===== -->
+  <section id="tldr">
+    <div class="sec-head">
+      <p class="kicker">in one line</p>
+      <h2><span class="bar">一句话核心</span></h2>
+    </div>
+    <div class="tldr">
+      <p class="t">TL;DR（太长不看版）</p>
+      <p>大脑有两种工作档位：<strong>专注模式（focused mode）</strong>盯着一个问题死磕，<strong>发散模式（diffuse mode）</strong>在你放松走神时把远处的念头互相搭线。灵感不是"主动搜索"出来的，而是<strong>先用专注模式把原料和高压堆够，再切到发散模式让潜意识在后台慢慢连</strong>——这就是心理学说的<strong>孵化效应（Incubation Effect，孵化效应）</strong>，神经层面常归因于休息时活跃的<strong>DMN（Default Mode Network，默认模式网络）</strong>。顺序绝不能反：没有前面的真投入，后面的放松只是放空。</p>
+    </div>
+  </section>
+
+  <!-- ===== MIND MAP ===== -->
+  <section id="map">
+    <div class="sec-head">
+      <p class="kicker">mind map</p>
+      <h2><span class="bar">思维导图：一张图看懂"高压后留白"</span></h2>
+    </div>
+    <p>中心是这套机制的总主张，五条分支是支撑它的核心概念。先扫这张图建立全局，再去下面「核心观点」逐条深读。</p>
+
+    <div class="mindmap">
+      <div class="mm-center">
+        <div class="lab">central idea · 总主张</div>
+        <div class="ttl">专注 / 发散双模式</div>
+        <div class="en">Focused & Diffuse Mode · 高压投入 → 留白孵化 → 灵感上浮</div>
+      </div>
+      <div class="mm-stem"></div>
+
+      <div class="mm-branches">
+
+        <div class="mm-branch" style="--bc:#c43b2f;">
+          <div class="bh"><span class="bn">1</span><span class="bt">孵化效应</span></div>
+          <ul>
+            <li>专注一阵后离开问题去休息，回来表现反而更好</li>
+            <li>解题的"卡点"常在你不想它时被解开</li>
+            <li>英文 Incubation Effect（孵化效应）</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#b9791b;">
+          <div class="bh"><span class="bn">2</span><span class="bt">两种思维模式</span></div>
+          <ul>
+            <li>专注模式（focused mode）：聚光灯，死磕已知路径</li>
+            <li>发散模式（diffuse mode）：泛光灯，做远距离联想</li>
+            <li>由 Barbara Oakley《Learning How to Learn》普及</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#6b4fa0;">
+          <div class="bh"><span class="bn">3</span><span class="bt">默认模式网络</span></div>
+          <ul>
+            <li>DMN = Default Mode Network（默认模式网络）</li>
+            <li>休息、走神、放空时反而更活跃</li>
+            <li>把白天的零散念头在后台"连线"</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#0b6f8f;">
+          <div class="bh"><span class="bn">4</span><span class="bt">操作链（顺序固定）</span></div>
+          <ul>
+            <li>① 高强度投入：把密度与原料拉满</li>
+            <li>② 刻意低负荷休息：散步 / 洗澡 / 做饭</li>
+            <li>③ 睡眠 / 走神 → 灵感上浮，随手记下</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#2f8f5b;">
+          <div class="bh"><span class="bn">5</span><span class="bt">边界与风险</span></div>
+          <ul>
+            <li>顺序不能反：没投入，留白只是放空</li>
+            <li>低负荷≠刷短视频（那是高刺激）</li>
+            <li>长期满负荷会烧成倦怠（burnout）</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#c43b2f;">
+          <div class="bh"><span class="bn">6</span><span class="bt">两个易混词</span></div>
+          <ul>
+            <li>认知 = 正向、有意识的思考</li>
+            <li>灵感 = 潜意识在特定时刻的浮现</li>
+            <li>原文的"潜意识星链"≈ DMN 的远距离联想</li>
+          </ul>
+        </div>
+
+      </div>
+      <p class="mm-hint">中心 → 6 条分支 → 各 2-3 个要点；与下文「核心观点」一一呼应。</p>
+    </div>
+  </section>
+
+  <!-- ===== CORE VIEWPOINTS ===== -->
+  <section id="core">
+    <div class="sec-head">
+      <p class="kicker">core viewpoints</p>
+      <h2><span class="bar">核心观点：逐条讲透</span></h2>
+    </div>
+    <p>每张卡片三到四层：<span class="tag point">讲了什么</span>概念原意　<span class="tag plain">通俗解释</span>掰开揉碎　<span class="tag link">与S31的关系</span>它怎么映射回系统　<span class="tag risk">风险/边界</span>哪里容易翻车。点开即读。</p>
+
+    <details class="dd" open>
+      <summary><span class="arw">▸</span><span class="lbl">① 孵化效应：离开问题，答案反而冒出来</span><span class="chip">核心机制</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p><strong>孵化效应（Incubation Effect，孵化效应）</strong>指：在一个难题上专注一段时间后，<strong>暂时离开去做别的事</strong>，回来时解题表现往往比一直死磕更好。原文里"前面高负荷拉满、后面突然放松，灵感就往上反"的描述，正是孵化效应的民间版本。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>像泡茶：高强度投入是"把茶叶和滚水闷进壶里"，休息留白是"盖上盖子等它出味"。你盯着壶不会更快出味，离开一会儿回来，味道反而到位了。</p>
+        </div>
+        <div class="layer"><span class="tag link">与S31的关系</span>
+          <p>对应 Theme 01 的"创作节律"：S31 把灵感诱发<strong>做成可重复的流程</strong>，而不是碰运气。孵化效应正是这条流程能成立的理论地基。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险/边界</span>
+          <p>孵化的前提是<strong>前面真的投入过</strong>。没有原料的"放松"不会孵出任何东西，只是单纯的拖延。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">② 专注模式 vs 发散模式：大脑的两个档位</span><span class="chip">双模式</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>Barbara Oakley 在《Learning How to Learn（学会如何学习）》里普及了一对概念：<strong>专注模式（focused mode）</strong>——注意力像聚光灯，沿已知路径深挖；<strong>发散模式（diffuse mode）</strong>——注意力像泛光灯，松散地把相距很远的念头连起来。两者<strong>不能同时开</strong>，要靠"切换"来配合。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>专注模式像用手电筒找钥匙，照得亮但范围窄；发散模式像把灯全开扫一眼整间屋子，看得广但不细。创造性洞见往往出现在"先聚光找透、再泛光连线"之后。</p>
+        </div>
+        <div class="layer"><span class="tag link">与S31的关系</span>
+          <p>原文区分的"<strong>认知 = 正向思考</strong>"约等于专注模式，"<strong>灵感 = 潜意识浮现</strong>"约等于发散模式的产物。这页把这对土话翻译成了标准术语。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">③ 默认模式网络（DMN）：休息时大脑在偷偷连线</span><span class="chip">神经机制</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>发散模式常被归因于 <strong>DMN（Default Mode Network，默认模式网络）</strong>——一组在你<strong>不专注于外部任务（休息、走神、发呆）时反而更活跃</strong>的脑区。它会把白天接触到的零散信息在后台重新排列、寻找远距离的关联。原文那句"潜意识里的星链浮上来"，几乎就是 DMN 在做远距离联想的形象说法。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>白天你把一堆素材"录入"，DMN 就像夜班整理员，趁你不盯着的时候把仓库里的箱子重新归类——偶尔把两个本不相干的箱子放到一起，那就是灵感。</p>
+        </div>
+        <div class="layer"><span class="tag link">与S31的关系</span>
+          <p>解释了为什么"睡前/醒后/散步时"是灵感高发窗口：那是 DMN 最活跃的时段。S31 把这些时段当作<strong>专门的捕捉窗口</strong>，是有神经科学依据的。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险/边界</span>
+          <p>DMN 的产物转瞬即逝。不随手记下（备忘录/录音），整理员归好的类很快又被打散，灵感就丢了。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">④ 操作链：高压 → 留白 → 睡眠/走神 → 灵感上浮</span><span class="chip">可落地流程</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>把直觉变成节律，而不是赌运气：<strong>① 先有一段"真投入"</strong>（资料、草稿、试错堆够，潜意识才有原料）；<strong>② 安排低认知负荷的放松</strong>（散步、洗澡、做饭、睡觉）；<strong>③ 把睡前/醒后当成专门的捕捉窗口</strong>，灵感一冒就记下。原文的"10-15 天高强度 + 故意放松 + 睡懒觉"就是这条链的个人化版本。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>像健身：先把肌肉练到力竭（高压），再吃好睡好（留白），肌肉是在<strong>休息时长出来的</strong>，不是在举铁的当下长出来的。灵感同理。</p>
+        </div>
+        <div class="layer"><span class="tag link">与S31的关系</span>
+          <p>这就是 S31 创作节律的标准作业流程（SOP = Standard Operating Procedure，标准作业流程）：把"灵感"从玄学变成可排期、可复用的节奏。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险/边界</span>
+          <p>"低负荷休息"≠刷短视频。短视频是<strong>高刺激</strong>，会持续占用注意力，让大脑切不进发散模式。真正的留白要让注意力"空"下来。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">⑤ 顺序不能反，且要防倦怠（burnout）</span><span class="chip">边界与风险</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>两条硬边界：<strong>第一，顺序不能反</strong>——没有前面的高压投入，后面的放松只是放空，不会"反"出东西；<strong>第二，剂量要克制</strong>——"10-15 天 120%"是个人经验值，不是普适标准，长期满负荷容易直接烧成<strong>倦怠（burnout，职业倦怠）</strong>。孵化的前提是"够累但没垮"。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>弓拉满才有力道，但一直绷着会断。高压是为了"上弦"，留白是"撒手放箭"；如果连撒手都不舍得，弓迟早废掉。</p>
+        </div>
+        <div class="layer"><span class="tag link">与S31的关系</span>
+          <p>提醒 S31 把这条节律当成<strong>节奏参考</strong>而不是 KPI（Key Performance Indicator，关键绩效指标）。把"产灵感"当硬指标去压，反而会破坏孵化的前提。</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===== BRIDGE TO S31 ===== -->
+  <section id="bridge">
+    <div class="sec-head">
+      <p class="kicker">connect</p>
+      <h2><span class="bar">把这套机制接回你的 S31 系统</span></h2>
+    </div>
+    <p>这页不是孤立的科普，它正好补上主页 Theme 01 的"<strong>原理底座</strong>"。一句话对照：</p>
+
+    <div class="note-box">
+      <p class="t">学习科学（原理层）　↔　S31 创作节律（执行层）</p>
+      <p style="margin:0;font-size:13.8px;line-height:1.9;color:#55514a;">原文把灵感诱发写成"<strong>高压 → 留白 → 灵感上浮</strong>"的操作经验；学习科学告诉你它为什么有效：<strong>专注模式负责把原料堆够，发散模式（靠 DMN）在休息时做远距离联想，孵化效应让答案在你离开问题时浮现</strong>。原文说的"认知"就是正向思考（专注），"灵感"就是潜意识浮现（发散的产物）。理解了这套机制，你就知道 S31 那条节律不是玄学，而是可排期、可复用的方法。</p>
+    </div>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">对照表：原文土话 → 学习科学术语</span><span class="chip">一一映射</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">"正向思考 / 认知"</span><p>对应<strong>专注模式（focused mode）</strong>：有意识、沿已知路径的深挖。</p></div>
+        <div class="layer"><span class="tag plain">"灵感 / 潜意识星链"</span><p>对应<strong>发散模式（diffuse mode）+ DMN（默认模式网络）</strong>的远距离联想产物。</p></div>
+        <div class="layer"><span class="tag link">"前面高压、后面放松就反上来"</span><p>对应<strong>孵化效应（Incubation Effect）</strong>：离开问题去休息，回来表现更好。</p></div>
+        <div class="layer"><span class="tag risk">"10-15 天 120%"</span><p>个人剂量，<strong>不是普适 KPI</strong>；长期满负荷需防倦怠（burnout）。详见 <a href="index.html#t1">主页 Theme 01 →</a></p></div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===== RESOURCES ===== -->
+  <section id="res">
+    <div class="sec-head">
+      <p class="kicker">library</p>
+      <h2><span class="bar">资料库：原片 + 权威来源</span></h2>
+    </div>
+    <div class="cards">
+      <a class="rc yt" href="https://www.youtube.com/watch?v=O96fE1E-rf8" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">原片：Learning how to learn · Barbara Oakley（TEDxOaklandUniversity）</span><span class="ds">youtube.com/watch?v=O96fE1E-rf8 · 本页整理的来源，讲专注/发散与休息</span></span></a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=focused+vs+diffuse+mode+learning+how+to+learn" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">YouTube 检索：focused vs diffuse mode（专注/发散模式）</span><span class="ds">更多《Learning How to Learn》相关讲解，可对照观看</span></span></a>
+      <a class="rc doc" href="https://fs.blog/spacing-effect/" target="_blank" rel="noopener"><span class="ic">¶</span><span class="tx"><span class="tt">文章：间隔与休息如何帮助大脑后台处理</span><span class="ds">fs.blog/spacing-effect · 关于休息、间隔与记忆/洞见的科普整理</span></span></a>
+      <a class="rc doc" href="https://www.shortform.com/blog/diffuse-thinking/" target="_blank" rel="noopener"><span class="ic">¶</span><span class="tx"><span class="tt">文章：Diffuse Thinking（发散思维）是什么、怎么用</span><span class="ds">shortform.com/blog/diffuse-thinking · 发散模式的通俗拆解</span></span></a>
+    </div>
+  </section>
+
+  <div class="endcap">
+    <p style="font-family:var(--mono);letter-spacing:1px;">END · FOCUSED / DIFFUSE DEEP-DIVE</p>
+    <p>本页为学习科学要点的转述与提炼，已对齐原文 Theme 01 语境　·　如有出入以原片为准</p>
+    <p style="margin-top:10px;"><a href="topics.html">← 延伸专题库</a>　·　<a href="index.html">S31 主页</a>　·　<a href="index.html#t1">看主页 Theme 01 灵感与节律</a></p>
+  </div>
+
+</div>
+
+<button class="backtop" id="backtop" aria-label="回到顶部">↑</button>
+
+<script>
+  var bar = document.getElementById('progress');
+  var backtop = document.getElementById('backtop');
+  function onScroll(){
+    var h = document.documentElement;
+    var scrolled = h.scrollTop;
+    var max = h.scrollHeight - h.clientHeight;
+    bar.style.width = (max > 0 ? (scrolled / max) * 100 : 0) + '%';
+    if(scrolled > 600){ backtop.classList.add('show'); } else { backtop.classList.remove('show'); }
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+  backtop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+  var navlinks = Array.prototype.slice.call(document.querySelectorAll('.navlinks a'));
+  function highlight(){
+    var pos = window.scrollY + 120;
+    var current = sections.length ? sections[0].id : null;
+    sections.forEach(function(s){ if(s.offsetTop <= pos){ current = s.id; } });
+    navlinks.forEach(function(a){
+      var on = a.getAttribute('href') === '#' + current;
+      a.style.color = on ? 'var(--accent)' : 'var(--muted)';
+      a.style.fontWeight = on ? '700' : '400';
+    });
+  }
+  window.addEventListener('scroll', highlight, {passive:true});
+  highlight();
+</script>
+</body>
+</html>

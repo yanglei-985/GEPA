@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>间隔重复 & 主动回忆 | 记忆科学深读（延伸专题）</title>
+<meta name="description" content="把'单词卡不是配图、是把记忆钉得深'这条直觉，对齐到遗忘曲线、间隔效应、主动回忆与 SRS 算法，并接入 S31 单词卡系统。" />
+<style>
+  :root{
+    --bg:#fbfaf7; --panel:#f7f3ed; --accent:#c43b2f; --ink:#2b2b28;
+    --ink2:#3f3d38; --muted:#77736b; --line:rgba(120,112,100,.20);
+    --teal:#0b6f8f; --green:#2f8f5b; --amber:#b9791b; --purple:#6b4fa0;
+    --serif:'Noto Serif SC','Source Han Serif SC','Songti SC',STSong,Georgia,serif;
+    --sans:'Noto Sans SC','PingFang SC','Microsoft YaHei',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --mono:'JetBrains Mono','SF Mono',Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--ink2);font-family:var(--sans);line-height:1.9;-webkit-font-smoothing:antialiased;}
+  a{color:var(--teal);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  code{font-family:var(--mono);font-size:.86em;color:var(--teal);background:rgba(196,59,47,.08);padding:2px 6px;border-radius:4px;word-break:break-word;}
+
+  #progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:60;transition:width .1s linear;}
+
+  .topbar{position:sticky;top:0;z-index:50;background:rgba(251,250,247,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  .topbar-inner{max-width:1060px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;}
+  .brand{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;white-space:nowrap;}
+  .navlinks{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12.5px;}
+  .navlinks a{color:var(--muted);padding:2px 4px;border-radius:4px;}
+  .navlinks a:hover{color:var(--accent);text-decoration:none;background:rgba(196,59,47,.07);}
+  .home-link{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--muted);border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 12px;white-space:nowrap;}
+  .home-link:hover{color:var(--accent);border-color:var(--accent);text-decoration:none;}
+
+  .wrap{max-width:820px;margin:0 auto;padding:0 18px 80px;}
+  .hero{padding:42px 0 24px;border-bottom:1px solid var(--line);}
+  .kicker{margin:0 0 12px;color:var(--accent);font-size:12px;letter-spacing:3px;text-transform:uppercase;font-family:var(--mono);}
+  h1{margin:0 0 14px;color:var(--ink);font-size:30px;line-height:1.28;font-weight:800;font-family:var(--serif);letter-spacing:.3px;}
+  .sub{margin:0;color:var(--muted);font-size:14px;line-height:1.7;}
+  .meta-row{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0;}
+  .meta-row .pill{font-family:var(--mono);font-size:11.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:20px;padding:4px 11px;}
+
+  h2{margin:0;color:var(--ink);font-size:24px;line-height:1.35;font-weight:700;font-family:var(--serif);}
+  h2 .bar{display:inline-block;padding-left:12px;border-left:4px solid var(--accent);}
+  .sec-head{margin:50px 0 16px;}
+  .sec-head .kicker{margin-bottom:8px;}
+  h3{margin:26px 0 12px;color:var(--ink);font-size:18px;line-height:1.45;font-weight:700;font-family:var(--serif);}
+  p{margin:0 0 16px;font-size:15.5px;line-height:1.95;text-align:justify;word-break:break-word;}
+  strong{color:var(--ink);font-weight:700;}
+
+  /* link back to home / context banner */
+  .ctx-banner{margin:22px 0;padding:16px 18px;background:#fff4ef;border:1px solid rgba(196,59,47,.30);border-left:5px solid var(--accent);border-radius:14px;}
+  .ctx-banner p{margin:0;font-size:14px;line-height:1.8;color:#5d5952;}
+
+  /* video embed */
+  .video-frame{position:relative;width:100%;padding-top:56.25%;border-radius:16px;overflow:hidden;background:#000;box-shadow:0 12px 34px rgba(0,0,0,.14);border:1px solid var(--line);}
+  .video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+  .video-cap{margin:10px 0 0;font-size:12.5px;color:var(--muted);text-align:center;}
+
+  .note-box{margin:20px 0 24px;padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:16px;}
+  .note-box .t{margin:0 0 6px;color:var(--ink);font-size:16px;font-weight:700;}
+  .note-box p:last-child{margin-bottom:0;}
+
+  .tldr{margin:18px 0;padding:18px 20px;background:#fff;border-left:4px solid var(--accent);border-radius:0 12px 12px 0;box-shadow:0 8px 24px rgba(0,0,0,.04);}
+  .tldr .t{margin:0 0 8px;font-family:var(--mono);font-size:11.5px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;}
+  .tldr p{margin:0;font-size:15.5px;line-height:1.9;}
+
+  /* ===== MIND MAP ===== */
+  .mindmap{margin:18px 0 8px;padding:22px 16px;background:linear-gradient(180deg,#fff,#fbf8f3);border:1px solid var(--line);border-radius:18px;}
+  .mm-center{max-width:520px;margin:0 auto 6px;text-align:center;background:var(--accent);color:#fff;border-radius:14px;padding:14px 18px;box-shadow:0 10px 26px rgba(196,59,47,.30);}
+  .mm-center .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:2px;opacity:.85;text-transform:uppercase;}
+  .mm-center .ttl{font-family:var(--serif);font-size:19px;font-weight:800;line-height:1.3;margin-top:3px;}
+  .mm-center .en{font-size:12px;opacity:.8;font-family:var(--mono);margin-top:3px;}
+  .mm-stem{width:2px;height:18px;background:var(--line);margin:0 auto;}
+  .mm-branches{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:6px;}
+  .mm-branch{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px;border-top:4px solid var(--bc,#c43b2f);box-shadow:0 6px 18px rgba(0,0,0,.04);}
+  .mm-branch .bh{display:flex;align-items:center;gap:9px;margin-bottom:9px;}
+  .mm-branch .bn{flex:none;width:26px;height:26px;border-radius:8px;background:var(--bc,#c43b2f);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;}
+  .mm-branch .bt{font-family:var(--serif);font-size:15.5px;font-weight:700;color:var(--ink);line-height:1.3;}
+  .mm-branch ul{margin:0;padding:0;list-style:none;}
+  .mm-branch li{position:relative;padding-left:15px;margin:0 0 6px;font-size:13px;line-height:1.6;color:var(--ink2);}
+  .mm-branch li::before{content:"";position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:50%;background:var(--bc,#c43b2f);}
+  .mm-branch li:last-child{margin-bottom:0;}
+  .mm-hint{margin:14px 0 0;text-align:center;font-size:12px;color:var(--muted);}
+
+  /* deep-dive collapsible (same as index) */
+  details.dd{margin:14px 0;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 8px 26px rgba(0,0,0,.03);}
+  details.dd>summary{list-style:none;cursor:pointer;padding:15px 18px;display:flex;align-items:flex-start;gap:10px;font-weight:700;color:var(--ink);font-size:15.5px;line-height:1.55;}
+  details.dd>summary::-webkit-details-marker{display:none;}
+  details.dd>summary .arw{color:var(--accent);font-family:var(--mono);font-size:13px;transition:transform .2s;margin-top:2px;}
+  details.dd[open]>summary .arw{transform:rotate(90deg);}
+  details.dd>summary .lbl{flex:1;}
+  details.dd>summary .chip{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.5px;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:2px 8px;white-space:nowrap;}
+  .dd-body{padding:2px 18px 16px;border-top:1px solid var(--line);}
+  .layer{margin:14px 0 0;padding-left:14px;border-left:2px solid var(--line);}
+  .layer .tag{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.5px;padding:1px 8px;border-radius:5px;margin-bottom:4px;}
+  .tag.point{color:var(--teal);background:rgba(11,111,143,.10);}
+  .tag.plain{color:var(--amber);background:rgba(185,121,27,.12);}
+  .tag.link{color:var(--green);background:rgba(47,143,91,.12);}
+  .tag.risk{color:var(--accent);background:rgba(196,59,47,.10);}
+  .layer p{margin:2px 0 0;font-size:14.3px;line-height:1.85;}
+
+  .cards{display:grid;grid-template-columns:1fr;gap:10px;margin:16px 0 6px;}
+  .rc{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;background:#fff;border:1px solid var(--line);border-radius:12px;transition:border-color .15s,transform .15s;}
+  .rc:hover{border-color:var(--accent);transform:translateY(-1px);text-decoration:none;}
+  .rc .ic{flex:none;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;}
+  .rc.yt .ic{background:#ffe9e7;color:var(--accent);}
+  .rc.doc .ic{background:#e7f0f4;color:var(--teal);}
+  .rc .tx{min-width:0;}
+  .rc .tt{display:block;color:var(--ink);font-weight:700;font-size:14px;line-height:1.4;}
+  .rc .ds{display:block;color:var(--muted);font-size:12px;margin-top:2px;word-break:break-word;}
+
+  .flow{font-family:var(--mono);font-size:12.5px;color:var(--teal);background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:14px 0;line-height:2;word-break:break-word;}
+  .endcap{margin:50px 0 0;padding:24px 0 0;border-top:1px solid var(--line);text-align:center;}
+  .endcap p{color:var(--muted);font-size:12.5px;text-align:center;}
+  .endcap a{font-weight:700;}
+  .backtop{position:fixed;right:18px;bottom:18px;z-index:40;width:42px;height:42px;border-radius:50%;background:var(--accent);color:#fff;border:0;cursor:pointer;font-size:18px;box-shadow:0 8px 20px rgba(196,59,47,.35);opacity:0;pointer-events:none;transition:opacity .2s;}
+  .backtop.show{opacity:1;pointer-events:auto;}
+  .disclaimer{font-size:12px;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:12px 14px;margin:16px 0;}
+
+  @media (max-width:560px){
+    h1{font-size:25px;} h2{font-size:20px;}
+    .navlinks{display:none;}
+    .mm-branches{grid-template-columns:1fr;}
+    .topbar-inner{justify-content:space-between;}
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">延伸专题 · 间隔重复</span>
+    <nav class="navlinks">
+      <a href="#video">视频</a>
+      <a href="#tldr">一句话</a>
+      <a href="#map">思维导图</a>
+      <a href="#core">核心观点</a>
+      <a href="#bridge">接入S31</a>
+      <a href="#res">资料库</a>
+    </nav>
+    <a class="home-link" href="topics.html">← 专题库</a>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="hero" id="top">
+    <p class="kicker">Deep-Dive · Memory Science</p>
+    <h1>间隔重复 &amp; 主动回忆<br/>Spaced Repetition · Active Recall</h1>
+    <p class="sub">把"单词卡不是配图、是把记忆钉得深"这条直觉，对齐到记忆科学，并接回你 S31 单词卡系统的复习节奏。</p>
+    <div class="meta-row">
+      <span class="pill">关键词：遗忘曲线</span>
+      <span class="pill">主动回忆 · 间隔效应</span>
+      <span class="pill">SRS = Spaced Repetition System（间隔重复系统）</span>
+    </div>
+  </header>
+
+  <div class="ctx-banner">
+    <p>🔗 <strong>它在 S31 系统里的位置：</strong>这页对应主页 <a href="index.html#t2">Theme 02 单词卡系统</a>里"<strong>记忆钉得深</strong>"与"记忆原理/参照物"那几张卡片。原文讲到图像把词"钉深"；这页接着讲<strong>怎么把它"钉牢"——把复习节奏交给算法</strong>。</p>
+  </div>
+
+  <!-- ===== VIDEO ===== -->
+  <section id="video">
+    <div class="sec-head">
+      <p class="kicker">watch</p>
+      <h2><span class="bar">先看原片（已嵌入）</span></h2>
+    </div>
+    <div class="video-frame">
+      <iframe src="https://www.youtube.com/embed/eauQac_23R0" title="How to use Anki like a PRO (by a Learning Expert)" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+    <p class="video-cap">▶ 《How to use Anki like a PRO (by a Learning Expert)》 · Justin Sung　·　<a href="https://www.youtube.com/watch?v=eauQac_23R0" target="_blank" rel="noopener">在 YouTube 打开</a></p>
+    <div class="disclaimer">下面的整理是对记忆科学概念的<strong>转述与提炼</strong>（非逐字字幕），并对齐了原文 Theme 02 的语境；如与原片有出入，以原片为准。Anki 是一款流行的开源间隔重复软件。</div>
+  </section>
+
+  <!-- ===== TL;DR ===== -->
+  <section id="tldr">
+    <div class="sec-head">
+      <p class="kicker">in one line</p>
+      <h2><span class="bar">一句话核心</span></h2>
+    </div>
+    <div class="tldr">
+      <p class="t">TL;DR（太长不看版）</p>
+      <p>记不住单词，不是你笨，是你<strong>对抗遗忘曲线的方式错了</strong>。两件武器：<strong>主动回忆（active recall）</strong>——盖住答案先自己想，而不是一遍遍重读；<strong>间隔重复（spaced repetition）</strong>——在快忘没忘的临界点复习，让记忆一次比一次牢。把这套排程交给 <strong>SRS（Spaced Repetition System，间隔重复系统）</strong>算法：<strong>答对就拉长下次间隔，答错就缩短</strong>。配合"一图一钉"的画面，把"钉深"交给图像、"钉牢"交给算法，分工明确。</p>
+    </div>
+  </section>
+
+  <!-- ===== MIND MAP ===== -->
+  <section id="map">
+    <div class="sec-head">
+      <p class="kicker">mind map</p>
+      <h2><span class="bar">思维导图：一张图看懂记忆怎么钉牢</span></h2>
+    </div>
+    <p>中心是这套方法的总主张，五条分支是支撑它的核心概念。先扫这张图建立全局，再去下面「核心观点」逐条深读。</p>
+
+    <div class="mindmap">
+      <div class="mm-center">
+        <div class="lab">central idea · 总主张</div>
+        <div class="ttl">间隔重复 + 主动回忆</div>
+        <div class="en">Spaced Repetition + Active Recall · 在快忘的临界点逼自己想起来</div>
+      </div>
+      <div class="mm-stem"></div>
+
+      <div class="mm-branches">
+
+        <div class="mm-branch" style="--bc:#c43b2f;">
+          <div class="bh"><span class="bn">1</span><span class="bt">遗忘曲线</span></div>
+          <ul>
+            <li>新学的东西按指数速度被忘掉</li>
+            <li>由 Ebbinghaus（艾宾浩斯）最早实验出来</li>
+            <li>每复习一次，曲线就变得更平</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#b9791b;">
+          <div class="bh"><span class="bn">2</span><span class="bt">间隔效应</span></div>
+          <ul>
+            <li>分散在多天的复习，远胜一次性突击</li>
+            <li>英文 spacing effect（间隔效应）</li>
+            <li>"临界点"复习收益最大</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#6b4fa0;">
+          <div class="bh"><span class="bn">3</span><span class="bt">主动回忆 vs 重读</span></div>
+          <ul>
+            <li>主动回忆（active recall）：先盖住答案自己想</li>
+            <li>重读只是"眼熟"，是记忆的错觉</li>
+            <li>提取本身就是最强的记忆动作</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#0b6f8f;">
+          <div class="bh"><span class="bn">4</span><span class="bt">SRS 算法</span></div>
+          <ul>
+            <li>SRS = Spaced Repetition System（间隔重复系统）</li>
+            <li>答对 → 拉长下次间隔</li>
+            <li>答错 → 缩短间隔，更频繁地见</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#2f8f5b;">
+          <div class="bh"><span class="bn">5</span><span class="bt">钉深 vs 钉牢</span></div>
+          <ul>
+            <li>钉深 = 图像/情绪让单次记忆更鲜明</li>
+            <li>钉牢 = 算法安排复习节奏防遗忘</li>
+            <li>两者分工，缺一不可</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#c43b2f;">
+          <div class="bh"><span class="bn">6</span><span class="bt">现代调度器</span></div>
+          <ul>
+            <li>FSRS = Free Spaced Repetition Scheduler</li>
+            <li>用记忆模型预测"何时该复习"</li>
+            <li>比老式固定倍数更省复习量</li>
+          </ul>
+        </div>
+
+      </div>
+      <p class="mm-hint">中心 → 6 条分支 → 各 3 个要点；与下文「核心观点」一一呼应。</p>
+    </div>
+  </section>
+
+  <!-- ===== CORE VIEWPOINTS ===== -->
+  <section id="core">
+    <div class="sec-head">
+      <p class="kicker">core viewpoints</p>
+      <h2><span class="bar">核心观点：逐条讲透</span></h2>
+    </div>
+    <p>每张卡片三到四层：<span class="tag point">讲了什么</span>概念原意　<span class="tag plain">通俗解释</span>掰开揉碎　<span class="tag link">与S31的关系</span>它怎么映射回系统　<span class="tag risk">风险/边界</span>哪里容易翻车。点开即读。</p>
+
+    <details class="dd" open>
+      <summary><span class="arw">▸</span><span class="lbl">① 遗忘曲线：不复习，记忆按指数往下掉</span><span class="chip">底层规律</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p><strong>遗忘曲线（forgetting curve，遗忘曲线）</strong>由德国心理学家 Ebbinghaus（艾宾浩斯）最早用实验画出：新学的信息会<strong>按近似指数的速度被遗忘</strong>，最初几天掉得最快。关键发现是——<strong>每复习一次，这条曲线就会变得更平</strong>，遗忘速度变慢。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>像往沙地里浇水：第一次很快渗干（忘得快）；但在快干时再浇一次，沙地越来越能存住水，浇水的间隔也能越拉越长。</p>
+        </div>
+        <div class="layer"><span class="tag link">与S31的关系</span>
+          <p>解释了为什么原文里"记忆钉得深"还不够：再深的钉，不复习也会松。S31 的单词卡必须<strong>带一套复习排程</strong>，才能把"钉深"维持成"钉牢"。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">② 间隔效应：分散复习远胜临时突击</span><span class="chip">间隔效应</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p><strong>间隔效应（spacing effect，间隔效应）</strong>：同样的总复习量，<strong>分散到多天</strong>的记忆效果，显著好于<strong>集中在一天突击</strong>。最划算的复习时机是"<strong>快要忘、但还没忘干净</strong>"的临界点——这时提取有难度，正因为有难度，记得才牢。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>考前一晚通宵背，像临时往脑子里塞，考完即忘；分几天背，像分期付款盖房子，每一层都干透了再加，房子才结实。</p>
+        </div>
+        <div class="layer"><span class="tag link">与S31的关系</span>
+          <p>这是 S31 单词卡"<strong>复习队列</strong>"的理论依据：抽到/学过的卡不是看一眼就完，而是按间隔被重新推到你面前。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险/边界</span>
+          <p>间隔不是越长越好。太长会在"已经忘干净"之后才复习，等于重新学；算法的价值就是帮你卡在临界点。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">③ 主动回忆 vs 重读：提取才算学习</span><span class="chip">最关键习惯</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p><strong>主动回忆（active recall，主动回忆）</strong>指：<strong>先盖住答案，逼自己从脑子里把它"提取"出来</strong>，再翻开对照。大量研究显示它远胜于"一遍遍重读/划重点"——后者会制造"我好像会了"的<strong>熟练度错觉</strong>，其实没真正记住。单词卡之所以有效，核心正是它强制你先回忆、再看答案。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>重读像反复看着地图，觉得路很熟；主动回忆像合上地图自己走一遍。只有真走过，下次才不会迷路。</p>
+        </div>
+        <div class="layer"><span class="tag link">与S31的关系</span>
+          <p>对应原文"<strong>看到画面能否秒回词义</strong>"的检验标准——那本质就是一次主动回忆。S31 的卡面设计要保证：先出画面/提示，<strong>留出回忆的空档</strong>，再揭晓释义。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险/边界</span>
+          <p>卡片别把答案和提示挤在同一面，否则一眼看到答案，主动回忆就被跳过，效果归零。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">④ SRS 算法：答对拉长、答错缩短</span><span class="chip">把节奏交给算法</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p><strong>SRS（Spaced Repetition System，间隔重复系统）</strong>把"该什么时候复习哪张卡"自动化：你每次复习给一个反馈（记得/不记得），<strong>答对 → 下次间隔拉长</strong>（1 天 → 3 天 → 7 天 → 更久），<strong>答错 → 间隔缩短</strong>、更频繁地见到它。这样你只在"该复习的卡"上花时间，已经牢固的卡不再浪费精力。Anki 等工具就是这套机制的实现。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>像一个智能闹钟：记得牢的词，它把闹钟越调越远；记不住的词，它把闹钟调得很勤，直到你真记住。</p>
+        </div>
+        <div class="layer"><span class="tag link">与S31的关系</span>
+          <p>这正是原文说的"<strong>把记忆钉牢交给算法</strong>"。S31 给每张词卡维护一个复习状态，抽到的卡自动进复习队列，由 SRS 决定下次出现时间。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险/边界</span>
+          <p>每天新增太多卡会让复习队列雪崩。要控制新增速度，否则"到期复习"堆成山，用户直接弃疗。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">⑤ 钉深（图像）× 钉牢（算法）：两件事分工</span><span class="chip">系统组合</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>原文点破单词卡的本质是"<strong>记忆钉得深</strong>"，对应认知科学的<strong>精细编码（elaborative encoding，精细编码）+ 图像/情绪双通道</strong>：让画面动作和词义高度重合（"separate = 一个人被劈成两半"），单次记忆就更鲜明。但"<strong>钉深</strong>"管单次强度，"<strong>钉牢</strong>"管长期保持——后者靠间隔重复。两者是<strong>分工</strong>，不是二选一。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>图像负责把钉子<strong>砸得够深</strong>（第一下就扎进去），算法负责<strong>定期回去把松动的钉子再敲两下</strong>。少了任何一个，钉子要么扎不深，要么早晚松掉。</p>
+        </div>
+        <div class="layer"><span class="tag link">与S31的关系</span>
+          <p>明确了 S31 单词卡两条产线的边界：<strong>卡面/图像系统负责"钉深"，SRS 复习系统负责"钉牢"</strong>。两条线各司其职、互相配合。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险/边界</span>
+          <p>图像太花会"喧宾夺主"——记住了画面却记不住词。检验标准始终是：看到画面能否秒回词义，而不是画面好不好看。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">⑥ 现代调度器 FSRS：用记忆模型更精准排程</span><span class="chip">进阶</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>老式 SRS 用固定倍数拉长间隔；新一代 <strong>FSRS（Free Spaced Repetition Scheduler，免费间隔重复调度器）</strong>改用一个<strong>记忆模型</strong>，为每张卡预测"在某个时间点你还记得的概率"，再据此安排复习，<strong>在同样记忆效果下减少总复习量</strong>。Anki 已内置该调度器。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>老算法是"统一按 2 倍拉长"，FSRS 是"给每张卡量体裁衣"：简单的词放得更久才复习，难缠的词盯得更紧，整体更省力。</p>
+        </div>
+        <div class="layer"><span class="tag link">与S31的关系</span>
+          <p>给 S31 一个升级方向：复习排程不必自己从零造轮子，可以参考 FSRS 这类成熟、开源的调度器思路，把工程量省下来。</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===== BRIDGE TO S31 ===== -->
+  <section id="bridge">
+    <div class="sec-head">
+      <p class="kicker">connect</p>
+      <h2><span class="bar">把这套方法接回你的 S31 系统</span></h2>
+    </div>
+    <p>这页正好补上主页 Theme 02"记忆原理"那几张卡片的"<strong>下半场</strong>"——从"钉深"接到"钉牢"。一句话对照：</p>
+
+    <div class="note-box">
+      <p class="t">记忆科学（原理层）　↔　S31 单词卡系统（产品层）</p>
+      <p style="margin:0;font-size:13.8px;line-height:1.9;color:#55514a;">原文把单词卡做成"<strong>一图一钉</strong>"，解决的是<strong>钉深</strong>；记忆科学补上的是<strong>钉牢</strong>——遗忘曲线说明不复习必松，间隔效应说明分散复习最划算，主动回忆说明"先想再看"才算学习，SRS 算法把这套排程自动化。<strong>在 S31 里：图像系统负责钉深，抽到的卡进复习队列、复习节奏交给算法负责钉牢。</strong>两者合起来，才是完整的记忆闭环。</p>
+    </div>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">落地清单：S31 单词卡如何接入 SRS</span><span class="chip">怎么用</span></summary>
+      <div class="dd-body">
+        <div class="flow">抽到/学过一张卡 → 进入复习队列 → 到期出现（先提示后揭晓）→ 反馈记得/不记得 → 算法调整下次间隔 ↻</div>
+        <div class="layer"><span class="tag point">数据字段</span><p>给每张词卡维护复习状态：上次复习时间、当前间隔、难度、稳定度，供 SRS（间隔重复系统）计算下次出现时间。</p></div>
+        <div class="layer"><span class="tag plain">交互设计</span><p>卡面先出"画面/提示"，<strong>留出主动回忆的空档</strong>，点击后再揭晓释义与例句，避免一眼看到答案。</p></div>
+        <div class="layer"><span class="tag link">与游戏化结合</span><p>"抽卡后接指令"可直接挂到复习队列：抽到的新词即时进队，复习达标再解锁稀有度。详见 <a href="index.html#t2">主页 Theme 02 →</a> 与 <a href="gacha-reward.html">抽卡专题 →</a></p></div>
+        <div class="layer"><span class="tag risk">控量</span><p>限制每日新增卡数，防止到期复习雪崩；让复习量稳定可持续，比"一次塞很多"更重要。</p></div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===== RESOURCES ===== -->
+  <section id="res">
+    <div class="sec-head">
+      <p class="kicker">library</p>
+      <h2><span class="bar">资料库：原片 + 权威来源</span></h2>
+    </div>
+    <div class="cards">
+      <a class="rc yt" href="https://www.youtube.com/watch?v=eauQac_23R0" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">原片：How to use Anki like a PRO · Justin Sung</span><span class="ds">youtube.com/watch?v=eauQac_23R0 · 本页整理的来源，讲主动回忆与间隔重复实操</span></span></a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=spaced+repetition+active+recall+Anki+how+it+works" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">YouTube 检索：间隔重复 / 主动回忆 / Anki 原理</span><span class="ds">更多关于遗忘曲线与复习节奏的讲解，可对照观看</span></span></a>
+      <a class="rc doc" href="https://ncase.me/remember/" target="_blank" rel="noopener"><span class="ic">¶</span><span class="tx"><span class="tt">互动科普：How To Remember Anything（间隔重复可玩演示）</span><span class="ds">ncase.me/remember · 拖动就能看懂遗忘曲线与复习节奏</span></span></a>
+      <a class="rc doc" href="https://faqs.ankiweb.net/what-spaced-repetition-algorithm" target="_blank" rel="noopener"><span class="ic">¶</span><span class="tx"><span class="tt">文档：Anki 用的是什么间隔重复算法</span><span class="ds">faqs.ankiweb.net · SRS / FSRS 调度器的官方说明</span></span></a>
+    </div>
+  </section>
+
+  <div class="endcap">
+    <p style="font-family:var(--mono);letter-spacing:1px;">END · SPACED REPETITION DEEP-DIVE</p>
+    <p>本页为记忆科学要点的转述与提炼，已对齐原文 Theme 02 语境　·　如有出入以原片为准</p>
+    <p style="margin-top:10px;"><a href="topics.html">← 延伸专题库</a>　·　<a href="index.html">S31 主页</a>　·　<a href="index.html#t2">看主页 Theme 02 单词卡系统</a></p>
+  </div>
+
+</div>
+
+<button class="backtop" id="backtop" aria-label="回到顶部">↑</button>
+
+<script>
+  var bar = document.getElementById('progress');
+  var backtop = document.getElementById('backtop');
+  function onScroll(){
+    var h = document.documentElement;
+    var scrolled = h.scrollTop;
+    var max = h.scrollHeight - h.clientHeight;
+    bar.style.width = (max > 0 ? (scrolled / max) * 100 : 0) + '%';
+    if(scrolled > 600){ backtop.classList.add('show'); } else { backtop.classList.remove('show'); }
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+  backtop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+  var navlinks = Array.prototype.slice.call(document.querySelectorAll('.navlinks a'));
+  function highlight(){
+    var pos = window.scrollY + 120;
+    var current = sections.length ? sections[0].id : null;
+    sections.forEach(function(s){ if(s.offsetTop <= pos){ current = s.id; } });
+    navlinks.forEach(function(a){
+      var on = a.getAttribute('href') === '#' + current;
+      a.style.color = on ? 'var(--accent)' : 'var(--muted)';
+      a.style.fontWeight = on ? '700' : '400';
+    });
+  }
+  window.addEventListener('scroll', highlight, {passive:true});
+  highlight();
+</script>
+</body>
+</html>

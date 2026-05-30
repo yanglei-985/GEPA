@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>知识蒸馏 与"蒸馏形/法/神" | 深读（延伸专题）</title>
+<meta name="description" content="把『知识蒸馏（Knowledge Distillation）』讲清楚：严格义的教师-学生模型蒸馏，与提示层的风格/方法迁移有何不同，并对应 S31 里 Nuwa 蒸馏『形/法/神』的分层。" />
+<style>
+  :root{
+    --bg:#fbfaf7; --panel:#f7f3ed; --accent:#c43b2f; --ink:#2b2b28;
+    --ink2:#3f3d38; --muted:#77736b; --line:rgba(120,112,100,.20);
+    --teal:#0b6f8f; --green:#2f8f5b; --amber:#b9791b; --purple:#6b4fa0;
+    --serif:'Noto Serif SC','Source Han Serif SC','Songti SC',STSong,Georgia,serif;
+    --sans:'Noto Sans SC','PingFang SC','Microsoft YaHei',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --mono:'JetBrains Mono','SF Mono',Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--ink2);font-family:var(--sans);line-height:1.9;-webkit-font-smoothing:antialiased;}
+  a{color:var(--teal);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  code{font-family:var(--mono);font-size:.86em;color:var(--teal);background:rgba(196,59,47,.08);padding:2px 6px;border-radius:4px;word-break:break-word;}
+
+  #progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:60;transition:width .1s linear;}
+
+  .topbar{position:sticky;top:0;z-index:50;background:rgba(251,250,247,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  .topbar-inner{max-width:1060px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;}
+  .brand{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;white-space:nowrap;}
+  .navlinks{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12.5px;}
+  .navlinks a{color:var(--muted);padding:2px 4px;border-radius:4px;}
+  .navlinks a:hover{color:var(--accent);text-decoration:none;background:rgba(196,59,47,.07);}
+  .home-link{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--muted);border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 12px;white-space:nowrap;}
+  .home-link:hover{color:var(--accent);border-color:var(--accent);text-decoration:none;}
+
+  .wrap{max-width:820px;margin:0 auto;padding:0 18px 80px;}
+  .hero{padding:42px 0 24px;border-bottom:1px solid var(--line);}
+  .kicker{margin:0 0 12px;color:var(--accent);font-size:12px;letter-spacing:3px;text-transform:uppercase;font-family:var(--mono);}
+  h1{margin:0 0 14px;color:var(--ink);font-size:30px;line-height:1.28;font-weight:800;font-family:var(--serif);letter-spacing:.3px;}
+  .sub{margin:0;color:var(--muted);font-size:14px;line-height:1.7;}
+  .meta-row{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0;}
+  .meta-row .pill{font-family:var(--mono);font-size:11.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:20px;padding:4px 11px;}
+
+  h2{margin:0;color:var(--ink);font-size:24px;line-height:1.35;font-weight:700;font-family:var(--serif);}
+  h2 .bar{display:inline-block;padding-left:12px;border-left:4px solid var(--accent);}
+  .sec-head{margin:50px 0 16px;}
+  .sec-head .kicker{margin-bottom:8px;}
+  h3{margin:26px 0 12px;color:var(--ink);font-size:18px;line-height:1.45;font-weight:700;font-family:var(--serif);}
+  p{margin:0 0 16px;font-size:15.5px;line-height:1.95;text-align:justify;word-break:break-word;}
+  strong{color:var(--ink);font-weight:700;}
+
+  /* link back to home / context banner */
+  .ctx-banner{margin:22px 0;padding:16px 18px;background:#fff4ef;border:1px solid rgba(196,59,47,.30);border-left:5px solid var(--accent);border-radius:14px;}
+  .ctx-banner p{margin:0;font-size:14px;line-height:1.8;color:#5d5952;}
+
+  /* video embed */
+  .video-frame{position:relative;width:100%;padding-top:56.25%;border-radius:16px;overflow:hidden;background:#000;box-shadow:0 12px 34px rgba(0,0,0,.14);border:1px solid var(--line);}
+  .video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+  .video-cap{margin:10px 0 0;font-size:12.5px;color:var(--muted);text-align:center;}
+
+  .note-box{margin:20px 0 24px;padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:16px;}
+  .note-box .t{margin:0 0 6px;color:var(--ink);font-size:16px;font-weight:700;}
+  .note-box p:last-child{margin-bottom:0;}
+
+  .tldr{margin:18px 0;padding:18px 20px;background:#fff;border-left:4px solid var(--accent);border-radius:0 12px 12px 0;box-shadow:0 8px 24px rgba(0,0,0,.04);}
+  .tldr .t{margin:0 0 8px;font-family:var(--mono);font-size:11.5px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;}
+  .tldr p{margin:0;font-size:15.5px;line-height:1.9;}
+
+  /* ===== MIND MAP ===== */
+  .mindmap{margin:18px 0 8px;padding:22px 16px;background:linear-gradient(180deg,#fff,#fbf8f3);border:1px solid var(--line);border-radius:18px;}
+  .mm-center{max-width:520px;margin:0 auto 6px;text-align:center;background:var(--accent);color:#fff;border-radius:14px;padding:14px 18px;box-shadow:0 10px 26px rgba(196,59,47,.30);}
+  .mm-center .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:2px;opacity:.85;text-transform:uppercase;}
+  .mm-center .ttl{font-family:var(--serif);font-size:19px;font-weight:800;line-height:1.3;margin-top:3px;}
+  .mm-center .en{font-size:12px;opacity:.8;font-family:var(--mono);margin-top:3px;}
+  .mm-stem{width:2px;height:18px;background:var(--line);margin:0 auto;}
+  .mm-branches{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:6px;}
+  .mm-branch{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px;border-top:4px solid var(--bc,#c43b2f);box-shadow:0 6px 18px rgba(0,0,0,.04);}
+  .mm-branch .bh{display:flex;align-items:center;gap:9px;margin-bottom:9px;}
+  .mm-branch .bn{flex:none;width:26px;height:26px;border-radius:8px;background:var(--bc,#c43b2f);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;}
+  .mm-branch .bt{font-family:var(--serif);font-size:15.5px;font-weight:700;color:var(--ink);line-height:1.3;}
+  .mm-branch ul{margin:0;padding:0;list-style:none;}
+  .mm-branch li{position:relative;padding-left:15px;margin:0 0 6px;font-size:13px;line-height:1.6;color:var(--ink2);}
+  .mm-branch li::before{content:"";position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:50%;background:var(--bc,#c43b2f);}
+  .mm-branch li:last-child{margin-bottom:0;}
+  .mm-hint{margin:14px 0 0;text-align:center;font-size:12px;color:var(--muted);}
+
+  /* deep-dive collapsible (same as index) */
+  details.dd{margin:14px 0;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 8px 26px rgba(0,0,0,.03);}
+  details.dd>summary{list-style:none;cursor:pointer;padding:15px 18px;display:flex;align-items:flex-start;gap:10px;font-weight:700;color:var(--ink);font-size:15.5px;line-height:1.55;}
+  details.dd>summary::-webkit-details-marker{display:none;}
+  details.dd>summary .arw{color:var(--accent);font-family:var(--mono);font-size:13px;transition:transform .2s;margin-top:2px;}
+  details.dd[open]>summary .arw{transform:rotate(90deg);}
+  details.dd>summary .lbl{flex:1;}
+  details.dd>summary .chip{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.5px;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:2px 8px;white-space:nowrap;}
+  .dd-body{padding:2px 18px 16px;border-top:1px solid var(--line);}
+  .layer{margin:14px 0 0;padding-left:14px;border-left:2px solid var(--line);}
+  .layer .tag{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.5px;padding:1px 8px;border-radius:5px;margin-bottom:4px;}
+  .tag.point{color:var(--teal);background:rgba(11,111,143,.10);}
+  .tag.plain{color:var(--amber);background:rgba(185,121,27,.12);}
+  .tag.link{color:var(--green);background:rgba(47,143,91,.12);}
+  .tag.risk{color:var(--accent);background:rgba(196,59,47,.10);}
+  .layer p{margin:2px 0 0;font-size:14.3px;line-height:1.85;}
+
+  .cards{display:grid;grid-template-columns:1fr;gap:10px;margin:16px 0 6px;}
+  .rc{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;background:#fff;border:1px solid var(--line);border-radius:12px;transition:border-color .15s,transform .15s;}
+  .rc:hover{border-color:var(--accent);transform:translateY(-1px);text-decoration:none;}
+  .rc .ic{flex:none;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;}
+  .rc.yt .ic{background:#ffe9e7;color:var(--accent);}
+  .rc.doc .ic{background:#e7f0f4;color:var(--teal);}
+  .rc .tx{min-width:0;}
+  .rc .tt{display:block;color:var(--ink);font-weight:700;font-size:14px;line-height:1.4;}
+  .rc .ds{display:block;color:var(--muted);font-size:12px;margin-top:2px;word-break:break-word;}
+
+  .flow{font-family:var(--mono);font-size:12.5px;color:var(--teal);background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:14px 0;line-height:2;word-break:break-word;}
+  .endcap{margin:50px 0 0;padding:24px 0 0;border-top:1px solid var(--line);text-align:center;}
+  .endcap p{color:var(--muted);font-size:12.5px;text-align:center;}
+  .endcap a{font-weight:700;}
+  .backtop{position:fixed;right:18px;bottom:18px;z-index:40;width:42px;height:42px;border-radius:50%;background:var(--accent);color:#fff;border:0;cursor:pointer;font-size:18px;box-shadow:0 8px 20px rgba(196,59,47,.35);opacity:0;pointer-events:none;transition:opacity .2s;}
+  .backtop.show{opacity:1;pointer-events:auto;}
+  .disclaimer{font-size:12px;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:12px 14px;margin:16px 0;}
+
+  @media (max-width:560px){
+    h1{font-size:25px;} h2{font-size:20px;}
+    .navlinks{display:none;}
+    .mm-branches{grid-template-columns:1fr;}
+    .topbar-inner{justify-content:space-between;}
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">延伸专题 · 知识蒸馏</span>
+    <nav class="navlinks">
+      <a href="#video">视频</a>
+      <a href="#tldr">一句话</a>
+      <a href="#map">思维导图</a>
+      <a href="#core">核心观点</a>
+      <a href="#bridge">接入S31</a>
+      <a href="#res">资料库</a>
+    </nav>
+    <a class="home-link" href="topics.html">← 专题库</a>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="hero" id="top">
+    <p class="kicker">Deep-Dive · Knowledge Distillation</p>
+    <h1>知识蒸馏 与"蒸馏形 / 法 / 神"<br/>Knowledge Distillation</h1>
+    <p class="sub">先讲清严格义的知识蒸馏（大教师模型训练小学生模型），再对照 S31 里 Nuwa 蒸馏"形 / 法 / 神"的分层——一个改权重、一个改提示，层级不同但都叫"蒸馏"。</p>
+    <div class="meta-row">
+      <span class="pill">KD = Knowledge Distillation（知识蒸馏）</span>
+      <span class="pill">提出：Hinton 等</span>
+      <span class="pill">teacher 教师 → student 学生</span>
+      <span class="pill">省算力 · 保性能</span>
+    </div>
+  </header>
+
+  <div class="ctx-banner">
+    <p>🔗 <strong>为什么这页在这里：</strong>你主页 <a href="index.html#t8">theme 08「Nuwa 技能、人物蒸馏与形/法/神」</a>抛出一个尖锐问题——把对话排成"宝玉风格"页面，和 Nuwa 的"蒸馏"差在哪？答案要从两层说起：<strong>严格义的知识蒸馏（改模型权重）</strong>，和<strong>提示层的风格/方法迁移（改提示词）</strong>。这一页把两者都讲对。</p>
+  </div>
+
+  <!-- ===== VIDEO ===== -->
+  <section id="video">
+    <div class="sec-head">
+      <p class="kicker">watch</p>
+      <h2><span class="bar">先看讲解（已嵌入）</span></h2>
+    </div>
+    <div class="video-frame">
+      <iframe src="https://www.youtube.com/embed/jrJKRYAdh7I" title="Knowledge Distillation: How LLMs train each other" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+    <p class="video-cap">▶ Julia Turc · 《Knowledge Distillation: How LLMs train each other》　·　<a href="https://www.youtube.com/watch?v=jrJKRYAdh7I" target="_blank" rel="noopener">在 YouTube 打开</a></p>
+    <div class="disclaimer">下面的整理为对知识蒸馏相关公开资料（IBM、维基百科及讲解视频等）的<strong>转述与提炼</strong>（非逐字字幕），并对齐 S31 主页 theme 08 的"形/法/神"分层；如与原始来源有出入，以原始来源为准。</div>
+  </section>
+
+  <!-- ===== TL;DR ===== -->
+  <section id="tldr">
+    <div class="sec-head">
+      <p class="kicker">in one line</p>
+      <h2><span class="bar">一句话核心</span></h2>
+    </div>
+    <div class="tldr">
+      <p class="t">TL;DR</p>
+      <p><strong>严格义的知识蒸馏（Knowledge Distillation，KD；Hinton 等提出）</strong>是：用一个大而强的"<strong>教师模型（teacher）</strong>"去训练一个小而快的"<strong>学生模型（student）</strong>"，让小模型学到大模型的行为，从而<strong>省算力、降成本、又尽量保住性能</strong>——它改的是<strong>模型权重</strong>。而 S31 里 Nuwa 说的"蒸馏"多发生在<strong>提示层</strong>，改的是提示词：可分成蒸"<strong>形</strong>"（版式外观，如宝玉风格）、蒸"<strong>法</strong>"（方法论与解题路径，如外教讲词法）、蒸"<strong>神</strong>"（人格与决策视角，如大佬圆桌）。一句话：<strong>同叫蒸馏，一个改权重，一个改提示；真正想改的是 AI 的解题路径，不只是套个好看的版式。</strong></p>
+    </div>
+  </section>
+
+  <!-- ===== MIND MAP ===== -->
+  <section id="map">
+    <div class="sec-head">
+      <p class="kicker">mind map</p>
+      <h2><span class="bar">思维导图：一张图看懂蒸馏</span></h2>
+    </div>
+    <p>中心是"知识蒸馏"，五条分支分别是它的严格定义、与提示层迁移的区别，以及"形/法/神"三层。先扫这张图建立全局，再去下面「核心观点」逐条深读。</p>
+
+    <div class="mindmap">
+      <div class="mm-center">
+        <div class="lab">central · 核心主题</div>
+        <div class="ttl">知识蒸馏 + 形/法/神</div>
+        <div class="en">Knowledge Distillation · teacher → student</div>
+      </div>
+      <div class="mm-stem"></div>
+
+      <div class="mm-branches">
+
+        <div class="mm-branch" style="--bc:#0b6f8f;">
+          <div class="bh"><span class="bn">1</span><span class="bt">严格义：教师→学生</span></div>
+          <ul>
+            <li>大<strong>教师模型</strong>训练小<strong>学生模型</strong></li>
+            <li>学生学大模型的行为，<strong>省算力保性能</strong></li>
+            <li>改的是<strong>模型权重</strong>（Hinton 等）</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#c43b2f;">
+          <div class="bh"><span class="bn">2</span><span class="bt">权重 vs 提示</span></div>
+          <ul>
+            <li>训练级蒸馏：<strong>改权重</strong>，要重训</li>
+            <li>提示级迁移：<strong>改提示</strong>，不训新模型</li>
+            <li>两者都叫"蒸馏"，<strong>层级不同</strong></li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#b9791b;">
+          <div class="bh"><span class="bn">3</span><span class="bt">蒸"形"（最浅）</span></div>
+          <ul>
+            <li>版式 / 外观 / 结构模板</li>
+            <li>如<strong>宝玉风格</strong>、PPT 风格</li>
+            <li>改"<strong>长什么样</strong>"，不改"怎么想"</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#2f8f5b;">
+          <div class="bh"><span class="bn">4</span><span class="bt">蒸"法"（中层·最实用）</span></div>
+          <ul>
+            <li>方法论 / 解题路径（外教讲词法）</li>
+            <li>改 AI <strong>处理问题的步骤</strong></li>
+            <li>需<strong>多样例归纳</strong>，能迁移到新题</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#6b4fa0;">
+          <div class="bh"><span class="bn">5</span><span class="bt">蒸"神"（最深）</span></div>
+          <ul>
+            <li>人格 / 决策视角 / 推理偏好</li>
+            <li>如大佬圆桌、角色群聊（多视角推理）</li>
+            <li>改"<strong>从什么立场看世界</strong>"</li>
+          </ul>
+        </div>
+
+      </div>
+      <p class="mm-hint">中心 → 5 条分支 → 各 2–3 个要点；与下文「核心观点」一一对应。</p>
+    </div>
+  </section>
+
+  <!-- ===== CORE VIEWPOINTS ===== -->
+  <section id="core">
+    <div class="sec-head">
+      <p class="kicker">core viewpoints</p>
+      <h2><span class="bar">核心观点：逐条讲透</span></h2>
+    </div>
+    <p>每张卡片三层：<span class="tag point">讲了什么</span>原意　<span class="tag plain">通俗解释</span>掰开揉碎　<span class="tag link">与S31的关系</span>怎么映射回你的系统（必要时加 <span class="tag risk">风险/边界</span>）。点开即读。</p>
+
+    <details class="dd" open>
+      <summary><span class="arw">▸</span><span class="lbl">① 严格义：大"教师模型"训练小"学生模型"</span><span class="chip">标准定义</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p><strong>知识蒸馏（Knowledge Distillation，KD；Hinton 等提出）</strong>：用一个大而强的"<strong>教师模型（teacher）</strong>"的输出，去训练一个小而快的"<strong>学生模型（student）</strong>"，让学生<strong>模仿教师的行为</strong>。学生不必从零硬学，而是继承教师的能力，从而在<strong>更小的体积、更低的算力</strong>下尽量保住接近教师的性能。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>像老师傅带徒弟：师傅（大模型）经验丰富但慢且贵；让徒弟（小模型）<strong>照着师傅怎么判断去学</strong>，学成后徒弟又快又省，能力却八九不离十。</p>
+        </div>
+        <div class="layer"><span class="tag link">与S31的关系</span>
+          <p>这是"蒸馏"一词的<strong>本义</strong>，发生在<strong>训练/权重层</strong>。理解它，才能看清 Nuwa 说的"蒸馏"其实多在提示层——名字相同，作用层级不同（下一条详述）。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">② 关键区别：改权重 vs 改提示</span><span class="chip">正名·防混淆</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>严格义的知识蒸馏会<strong>重新训练一个模型、改变其权重</strong>；而 theme 08 里 Nuwa 说的"蒸馏"，多是<strong>提示词层面的"风格/方法迁移"</strong>——<strong>不训练新模型</strong>，只用提示把某种"讲法/视角"复制给现成的 AI。两者都被叫作"蒸馏"，但一个动的是<strong>模型内部权重</strong>，一个动的是<strong>输入端的提示</strong>。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>改权重像"<strong>把徒弟重新培养成另一个人</strong>"（费时费力，但本事真长在身上）；改提示像"<strong>给同一个人换一套工作说明书</strong>"（立竿见影，但本事没真正内化）。</p>
+        </div>
+        <div class="layer"><span class="tag link">与S31的关系</span>
+          <p>讲话者的"<strong>形 / 法 / 神</strong>"恰好给了提示层迁移一个更细的分层。下面三条逐层讲清，帮你判断每次"风格化"到底在迁移哪一层。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险/边界</span>
+          <p>对外别把"提示词风格迁移"说成"知识蒸馏"，容易和训练级蒸馏混淆。叫"<strong>风格/方法提取</strong>"或"角色提示"更准确。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">③ 蒸"形"：版式 / 外观 / 结构模板（如宝玉风格）</span><span class="chip">最浅层</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>"<strong>形</strong>" = 可见的<strong>外观与结构模板</strong>：配色、排版、章节骨架、措辞腔调。复制"形"改变的是<strong>输出长什么样</strong>，<strong>不改变 AI 怎么想</strong>。你现在看的这套"宝玉风格"页面，就属于蒸"形"。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>像换了套西装：人还是那个人、思路没变，只是<strong>看起来更体面</strong>。给 AI 一份"风格规范 + 样例"让它套版即可，成本低、见效快。</p>
+        </div>
+        <div class="layer"><span class="tag link">与S31的关系</span>
+          <p>"形"适合统一品牌观感，是最容易做的一层；但它<strong>不是 Nuwa 真正想要的蒸馏</strong>。详见 <a href="index.html#t8">主页 theme 08 →</a></p>
+        </div>
+        <div class="layer"><span class="tag risk">风险/边界</span>
+          <p>只仿形容易"金玉其外"——版面漂亮但内容空。<strong>形必须服务于内容</strong>，不能用排版掩盖思考的缺失。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">④ 蒸"法"：可迁移的解题路径（外教讲词法的套路）</span><span class="chip">中层·最实用</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>"<strong>法</strong>" = <strong>方法论 / 解题路径</strong>：外教不是直接给你答案，而是有一套"如何拆解、如何向下兼容到你的水平、用什么框架表达"的<strong>稳定套路</strong>。蒸"法"改变的是 AI <strong>处理问题的步骤</strong>，所以迁移到新词、新题也成立——这是 BNY 强调的重点，也是 SOP 化在认知层的版本。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>授人以渔：不是给你这条鱼（答案/形），而是把"<strong>怎么找鱼群、怎么下网</strong>"的方法装进脑子，换片海也能用。</p>
+        </div>
+        <div class="layer"><span class="tag link">与S31的关系</span>
+          <p>怎么提取"法"：把范例对象的<strong>解题步骤显式写出来</strong>（先做什么、再做什么、用什么判断标准），做成可复用的"方法提示"，让 AI 按这套路处理新输入。这正是 Nuwa 蒸馏要改的"内部解题路径"。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险/边界</span>
+          <p>"法"难提取——你得真看懂高手为什么这么做，否则抽出的是"伪步骤"。<strong>需要多个样例归纳</strong>，单一样例容易抽偏。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">⑤ 蒸"神"：人格 / 决策视角（大佬圆桌、角色群聊）</span><span class="chip">最深层</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>"<strong>神 / 人格</strong>" = 一整套<strong>价值取向 + 决策视角 + 推理偏好</strong>。让 AI 扮演"商业大佬圆桌"或多角色群聊，本质是<strong>多视角推理（persona / role-play prompting，人设 / 角色扮演提示）</strong>：用不同人格各自的立场去碰撞同一问题。它改变的不只是步骤，而是<strong>从什么立场看世界</strong>。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>像请一桌顾问：投资人、产品经理、用户代表各说各话，你听到的是被<strong>多重立场打磨过的判断</strong>，而非单线答案。</p>
+        </div>
+        <div class="layer"><span class="tag link">与S31的关系</span>
+          <p>为每个角色写清"它在乎什么、怕什么、判断标准是什么"，让它们就同一议题分别发言再综合，适合做<strong>决策预演与盲点排查</strong>——这是"神"这一层在你系统里的用法。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险/边界</span>
+          <p>角色越鲜明越容易<strong>刻板化/失真</strong>——AI 演的"某位名人"不是本人。它能帮你换视角，但<strong>不能当成本人真实意见</strong>来背书决策。</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===== BRIDGE TO S31 ===== -->
+  <section id="bridge">
+    <div class="sec-head">
+      <p class="kicker">connect</p>
+      <h2><span class="bar">把蒸馏接回你的 S31 系统</span></h2>
+    </div>
+    <p>这页补上的是 theme 08 那个尖锐问题的<strong>完整答案</strong>。一句话对照：</p>
+
+    <div class="note-box">
+      <p class="t">宝玉风格整理（蒸"形"）　vs　Nuwa 真正想要的蒸馏（蒸"法 / 神"）</p>
+      <p style="margin:0;font-size:13.8px;line-height:1.9;color:#55514a;">把对话排成宝玉风格页面，是蒸"<strong>形</strong>"——改的是<strong>呈现</strong>；Nuwa 真正想做的，是蒸"<strong>法</strong>"和"<strong>神</strong>"——改的是 AI 的<strong>解题路径与决策视角</strong>。所以判断标准很清楚：<strong>能让 AI 像那个老师一样去解释、像那个角色一样去决策、像那个系统一样去组织知识，才叫蒸馏；只是排得好看，那是套版。</strong>Nuwa 蒸馏的本质是改 AI 内部的解题路径，不只是套个版式。</p>
+    </div>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">动手前先自问：我要蒸的是形、法，还是神？</span><span class="chip">怎么做</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">先定层级</span><p>做任何"风格化"前先问：我要复制的是<strong>外观(形)</strong>、<strong>方法(法)</strong>，还是<strong>视角(神)</strong>？目标不同，要提取的素材和验收标准完全不同。</p></div>
+        <div class="layer"><span class="tag plain">配素材</span><p>蒸"形"给风格规范+样例；蒸"法"要把解题步骤显式写出并<strong>多样例归纳</strong>；蒸"神"要写清角色的在乎/怕/判断标准。</p></div>
+        <div class="layer"><span class="tag link">定验收</span><p>蒸"形"看版式是否一致；蒸"法"看换新题能否照套路解对；蒸"神"看多视角是否真的碰撞出盲点。详见 <a href="index.html#t8">主页 theme 08 →</a></p></div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===== RESOURCES ===== -->
+  <section id="res">
+    <div class="sec-head">
+      <p class="kicker">library</p>
+      <h2><span class="bar">资料库：讲解 + 权威来源</span></h2>
+    </div>
+    <div class="cards">
+      <a class="rc yt" href="https://www.youtube.com/watch?v=jrJKRYAdh7I" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">视频：Knowledge Distillation: How LLMs train each other（Julia Turc）</span><span class="ds">youtube.com/watch?v=jrJKRYAdh7I · 教师-学生模型蒸馏的直观讲解</span></span></a>
+      <a class="rc doc" href="https://www.ibm.com/think/topics/knowledge-distillation" target="_blank" rel="noopener"><span class="ic">¶</span><span class="tx"><span class="tt">文章：What is Knowledge Distillation?（IBM）</span><span class="ds">ibm.com · 知识蒸馏的标准定义与在 LLM 上的用法</span></span></a>
+      <a class="rc doc" href="https://en.wikipedia.org/wiki/Knowledge_distillation" target="_blank" rel="noopener"><span class="ic">¶</span><span class="tx"><span class="tt">词条：Knowledge distillation（Wikipedia）</span><span class="ds">en.wikipedia.org · 知识蒸馏的来龙去脉与技术综述</span></span></a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=knowledge+distillation+teacher+student+model+explained" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">YouTube 检索：更多知识蒸馏讲解</span><span class="ds">区分"训练级蒸馏"与"提示级风格迁移"</span></span></a>
+    </div>
+  </section>
+
+  <div class="endcap">
+    <p style="font-family:var(--mono);letter-spacing:1px;">END · KNOWLEDGE DISTILLATION DEEP-DIVE</p>
+    <p>本页为知识蒸馏相关公开资料的转述与提炼，并对齐主页 theme 08　·　如有出入以原始来源为准</p>
+    <p style="margin-top:10px;"><a href="topics.html">← 延伸专题库</a>　·　<a href="index.html">S31 主页</a>　·　<a href="index.html#t8">看主页 theme 08 形/法/神</a></p>
+  </div>
+
+</div>
+
+<button class="backtop" id="backtop" aria-label="回到顶部">↑</button>
+
+<script>
+  var bar = document.getElementById('progress');
+  var backtop = document.getElementById('backtop');
+  function onScroll(){
+    var h = document.documentElement;
+    var scrolled = h.scrollTop;
+    var max = h.scrollHeight - h.clientHeight;
+    bar.style.width = (max > 0 ? (scrolled / max) * 100 : 0) + '%';
+    if(scrolled > 600){ backtop.classList.add('show'); } else { backtop.classList.remove('show'); }
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+  backtop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+  var navlinks = Array.prototype.slice.call(document.querySelectorAll('.navlinks a'));
+  function highlight(){
+    var pos = window.scrollY + 120;
+    var current = sections.length ? sections[0].id : null;
+    sections.forEach(function(s){ if(s.offsetTop <= pos){ current = s.id; } });
+    navlinks.forEach(function(a){
+      var on = a.getAttribute('href') === '#' + current;
+      a.style.color = on ? 'var(--accent)' : 'var(--muted)';
+      a.style.fontWeight = on ? '700' : '400';
+    });
+  }
+  window.addEventListener('scroll', highlight, {passive:true});
+  highlight();
+</script>
+</body>
+</html>

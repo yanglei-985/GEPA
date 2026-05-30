@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Claude Code 终端 AI 代理 | 深读专题</title>
+<meta name="description" content="把 Claude Code 讲清楚：在终端里运行的 AI 编码代理，能读代码、改文件、跑命令、用 Git，项目级自主执行，并接回 S31'把源代码资产纳入 AI 工作流'的能力链。" />
+<style>
+  :root{
+    --bg:#fbfaf7; --panel:#f7f3ed; --accent:#c43b2f; --ink:#2b2b28;
+    --ink2:#3f3d38; --muted:#77736b; --line:rgba(120,112,100,.20);
+    --teal:#0b6f8f; --green:#2f8f5b; --amber:#b9791b; --purple:#6b4fa0;
+    --serif:'Noto Serif SC','Source Han Serif SC','Songti SC',STSong,Georgia,serif;
+    --sans:'Noto Sans SC','PingFang SC','Microsoft YaHei',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --mono:'JetBrains Mono','SF Mono',Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--ink2);font-family:var(--sans);line-height:1.9;-webkit-font-smoothing:antialiased;}
+  a{color:var(--teal);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  code{font-family:var(--mono);font-size:.86em;color:var(--teal);background:rgba(196,59,47,.08);padding:2px 6px;border-radius:4px;word-break:break-word;}
+
+  #progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:60;transition:width .1s linear;}
+
+  .topbar{position:sticky;top:0;z-index:50;background:rgba(251,250,247,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  .topbar-inner{max-width:1060px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;}
+  .brand{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;white-space:nowrap;}
+  .navlinks{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12.5px;}
+  .navlinks a{color:var(--muted);padding:2px 4px;border-radius:4px;}
+  .navlinks a:hover{color:var(--accent);text-decoration:none;background:rgba(196,59,47,.07);}
+  .home-link{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--muted);border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 12px;white-space:nowrap;}
+  .home-link:hover{color:var(--accent);border-color:var(--accent);text-decoration:none;}
+
+  .wrap{max-width:820px;margin:0 auto;padding:0 18px 80px;}
+  .hero{padding:42px 0 24px;border-bottom:1px solid var(--line);}
+  .kicker{margin:0 0 12px;color:var(--accent);font-size:12px;letter-spacing:3px;text-transform:uppercase;font-family:var(--mono);}
+  h1{margin:0 0 14px;color:var(--ink);font-size:30px;line-height:1.28;font-weight:800;font-family:var(--serif);letter-spacing:.3px;}
+  .sub{margin:0;color:var(--muted);font-size:14px;line-height:1.7;}
+  .meta-row{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0;}
+  .meta-row .pill{font-family:var(--mono);font-size:11.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:20px;padding:4px 11px;}
+
+  h2{margin:0;color:var(--ink);font-size:24px;line-height:1.35;font-weight:700;font-family:var(--serif);}
+  h2 .bar{display:inline-block;padding-left:12px;border-left:4px solid var(--accent);}
+  .sec-head{margin:50px 0 16px;}
+  .sec-head .kicker{margin-bottom:8px;}
+  h3{margin:26px 0 12px;color:var(--ink);font-size:18px;line-height:1.45;font-weight:700;font-family:var(--serif);}
+  p{margin:0 0 16px;font-size:15.5px;line-height:1.95;text-align:justify;word-break:break-word;}
+  strong{color:var(--ink);font-weight:700;}
+
+  .ctx-banner{margin:22px 0;padding:16px 18px;background:#fff4ef;border:1px solid rgba(196,59,47,.30);border-left:5px solid var(--accent);border-radius:14px;}
+  .ctx-banner p{margin:0;font-size:14px;line-height:1.8;color:#5d5952;}
+
+  .video-frame{position:relative;width:100%;padding-top:56.25%;border-radius:16px;overflow:hidden;background:#000;box-shadow:0 12px 34px rgba(0,0,0,.14);border:1px solid var(--line);}
+  .video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+  .video-cap{margin:10px 0 0;font-size:12.5px;color:var(--muted);text-align:center;}
+
+  .note-box{margin:20px 0 24px;padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:16px;}
+  .note-box .t{margin:0 0 6px;color:var(--ink);font-size:16px;font-weight:700;}
+  .note-box p:last-child{margin-bottom:0;}
+
+  .tldr{margin:18px 0;padding:18px 20px;background:#fff;border-left:4px solid var(--accent);border-radius:0 12px 12px 0;box-shadow:0 8px 24px rgba(0,0,0,.04);}
+  .tldr .t{margin:0 0 8px;font-family:var(--mono);font-size:11.5px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;}
+  .tldr p{margin:0;font-size:15.5px;line-height:1.9;}
+
+  /* ===== MIND MAP ===== */
+  .mindmap{margin:18px 0 8px;padding:22px 16px;background:linear-gradient(180deg,#fff,#fbf8f3);border:1px solid var(--line);border-radius:18px;}
+  .mm-center{max-width:520px;margin:0 auto 6px;text-align:center;background:var(--accent);color:#fff;border-radius:14px;padding:14px 18px;box-shadow:0 10px 26px rgba(196,59,47,.30);}
+  .mm-center .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:2px;opacity:.85;text-transform:uppercase;}
+  .mm-center .ttl{font-family:var(--serif);font-size:19px;font-weight:800;line-height:1.3;margin-top:3px;}
+  .mm-center .en{font-size:12px;opacity:.8;font-family:var(--mono);margin-top:3px;}
+  .mm-stem{width:2px;height:18px;background:var(--line);margin:0 auto;}
+  .mm-branches{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:6px;}
+  .mm-branch{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px;border-top:4px solid var(--bc,#c43b2f);box-shadow:0 6px 18px rgba(0,0,0,.04);}
+  .mm-branch .bh{display:flex;align-items:center;gap:9px;margin-bottom:9px;}
+  .mm-branch .bn{flex:none;width:26px;height:26px;border-radius:8px;background:var(--bc,#c43b2f);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;}
+  .mm-branch .bt{font-family:var(--serif);font-size:15.5px;font-weight:700;color:var(--ink);line-height:1.3;}
+  .mm-branch ul{margin:0;padding:0;list-style:none;}
+  .mm-branch li{position:relative;padding-left:15px;margin:0 0 6px;font-size:13px;line-height:1.6;color:var(--ink2);}
+  .mm-branch li::before{content:"";position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:50%;background:var(--bc,#c43b2f);}
+  .mm-branch li:last-child{margin-bottom:0;}
+  .mm-hint{margin:14px 0 0;text-align:center;font-size:12px;color:var(--muted);}
+
+  details.dd{margin:14px 0;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 8px 26px rgba(0,0,0,.03);}
+  details.dd>summary{list-style:none;cursor:pointer;padding:15px 18px;display:flex;align-items:flex-start;gap:10px;font-weight:700;color:var(--ink);font-size:15.5px;line-height:1.55;}
+  details.dd>summary::-webkit-details-marker{display:none;}
+  details.dd>summary .arw{color:var(--accent);font-family:var(--mono);font-size:13px;transition:transform .2s;margin-top:2px;}
+  details.dd[open]>summary .arw{transform:rotate(90deg);}
+  details.dd>summary .lbl{flex:1;}
+  details.dd>summary .chip{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.5px;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:2px 8px;white-space:nowrap;}
+  .dd-body{padding:2px 18px 16px;border-top:1px solid var(--line);}
+  .layer{margin:14px 0 0;padding-left:14px;border-left:2px solid var(--line);}
+  .layer .tag{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.5px;padding:1px 8px;border-radius:5px;margin-bottom:4px;}
+  .tag.point{color:var(--teal);background:rgba(11,111,143,.10);}
+  .tag.plain{color:var(--amber);background:rgba(185,121,27,.12);}
+  .tag.link{color:var(--green);background:rgba(47,143,91,.12);}
+  .tag.risk{color:var(--accent);background:rgba(196,59,47,.10);}
+  .layer p{margin:2px 0 0;font-size:14.3px;line-height:1.85;}
+
+  .cards{display:grid;grid-template-columns:1fr;gap:10px;margin:16px 0 6px;}
+  .rc{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;background:#fff;border:1px solid var(--line);border-radius:12px;transition:border-color .15s,transform .15s;}
+  .rc:hover{border-color:var(--accent);transform:translateY(-1px);text-decoration:none;}
+  .rc .ic{flex:none;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;}
+  .rc.yt .ic{background:#ffe9e7;color:var(--accent);}
+  .rc.doc .ic{background:#e7f0f4;color:var(--teal);}
+  .rc .tx{min-width:0;}
+  .rc .tt{display:block;color:var(--ink);font-weight:700;font-size:14px;line-height:1.4;}
+  .rc .ds{display:block;color:var(--muted);font-size:12px;margin-top:2px;word-break:break-word;}
+
+  .flow{font-family:var(--mono);font-size:12.5px;color:var(--teal);background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:14px 0;line-height:2;word-break:break-word;}
+  .endcap{margin:50px 0 0;padding:24px 0 0;border-top:1px solid var(--line);text-align:center;}
+  .endcap p{color:var(--muted);font-size:12.5px;text-align:center;}
+  .endcap a{font-weight:700;}
+  .backtop{position:fixed;right:18px;bottom:18px;z-index:40;width:42px;height:42px;border-radius:50%;background:var(--accent);color:#fff;border:0;cursor:pointer;font-size:18px;box-shadow:0 8px 20px rgba(196,59,47,.35);opacity:0;pointer-events:none;transition:opacity .2s;}
+  .backtop.show{opacity:1;pointer-events:auto;}
+  .disclaimer{font-size:12px;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:12px 14px;margin:16px 0;}
+
+  @media (max-width:560px){
+    h1{font-size:25px;} h2{font-size:20px;}
+    .navlinks{display:none;}
+    .mm-branches{grid-template-columns:1fr;}
+    .topbar-inner{justify-content:space-between;}
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">深读 · Claude Code</span>
+    <nav class="navlinks">
+      <a href="#video">视频</a>
+      <a href="#tldr">一句话</a>
+      <a href="#map">思维导图</a>
+      <a href="#core">核心观点</a>
+      <a href="#bridge">接入S31</a>
+      <a href="#res">资料库</a>
+    </nav>
+    <a class="home-link" href="topics.html">← 专题库</a>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="hero" id="top">
+    <p class="kicker">Deep-Dive · Agentic Coding</p>
+    <h1>Claude Code 终端 AI 代理<br/>Agentic Coding in the Terminal</h1>
+    <p class="sub">一个住在终端里的 AI 编码代理：读代码、改文件、跑命令、用 Git。它不是自动补全，而是"给目标它干活"的项目级自主执行——正好承接你"拉项目 → 交 AI 解构 → 落地"的能力链。</p>
+    <div class="meta-row">
+      <span class="pill">缩写：CLI = Command-Line Interface（命令行界面）</span>
+      <span class="pill">IDE = Integrated Development Environment（集成开发环境）</span>
+      <span class="pill">MCP = Model Context Protocol（模型上下文协议）</span>
+    </div>
+  </header>
+
+  <div class="ctx-banner">
+    <p>🔗 <strong>这页在 S31 系统里的位置：</strong>对应主页 <a href="index.html#next">「下一步」第①条——把 Claude / Claude Code 用起来</a>，并承接 <a href="index.html#t7">主题 07</a> 的 GitHub 能力链：先用 <a href="git-github.html">Git / GitHub</a> 把项目拉下来，再交给 Claude Code 在终端里<strong>解构与改造</strong>。</p>
+  </div>
+
+  <!-- ===== VIDEO ===== -->
+  <section id="video">
+    <div class="sec-head">
+      <p class="kicker">watch</p>
+      <h2><span class="bar">先看视频（检索入口）</span></h2>
+    </div>
+    <a href="https://www.youtube.com/results?search_query=Claude+Code+tutorial+terminal+agent" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:16px;padding:22px 22px;background:linear-gradient(180deg,#fff,#fff4ef);border:1px solid rgba(196,59,47,.30);border-left:5px solid var(--accent);border-radius:16px;text-decoration:none;box-shadow:0 12px 30px rgba(0,0,0,.06);">
+      <span style="flex:none;width:54px;height:54px;border-radius:14px;background:#ffe9e7;color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:24px;">▶</span>
+      <span style="min-width:0;">
+        <span style="display:block;color:var(--ink);font-weight:800;font-size:16.5px;font-family:var(--serif);line-height:1.35;">在 YouTube 看「Claude Code 终端代理」教程 →</span>
+        <span style="display:block;color:var(--muted);font-size:12.8px;margin-top:4px;line-height:1.6;">Claude Code 更新很快，这一主题没有一条"经过校验、标题长期吻合"的固定视频，故给你一个检索入口：点开即是相关教程列表。建议优先看 Anthropic 官方频道与近期更新的实操演示。</span>
+      </span>
+    </a>
+    <p class="video-cap">为保证链接长期有效，本页不写死单条视频地址，改用 YouTube 检索入口。</p>
+    <div class="disclaimer">下面的整理对齐了 Anthropic 官网与 Claude Code 官方文档，并接回 S31 主页主题 07 与「下一步」；外部内容均为<strong>转述与提炼</strong>，非逐字摘录。</div>
+  </section>
+
+  <!-- ===== TL;DR ===== -->
+  <section id="tldr">
+    <div class="sec-head">
+      <p class="kicker">in one line</p>
+      <h2><span class="bar">一句话核心</span></h2>
+    </div>
+    <div class="tldr">
+      <p class="t">TL;DR</p>
+      <p><strong>Claude Code</strong> 是 Anthropic 出的、<strong>在终端里运行的 AI 编码代理</strong>：它能读懂整个代码库、<strong>改文件、跑命令、用 Git</strong>。它<strong>不是自动补全</strong>，而是项目级的"<strong>自主执行</strong>"——你给目标，它自己规划并动手完成。靠 <code>CLAUDE.md</code> 等上下文文档接上项目历史，特别适合"<strong>拉项目 → 交 AI 解构 → 落地</strong>"的工作流。但要管好<strong>权限与安全</strong>：别让它乱删乱改，敏感信息别入库。</p>
+    </div>
+  </section>
+
+  <!-- ===== MIND MAP ===== -->
+  <section id="map">
+    <div class="sec-head">
+      <p class="kicker">mind map</p>
+      <h2><span class="bar">思维导图：一张图看懂 Claude Code</span></h2>
+    </div>
+    <p>中心是"终端里的 AI 编码代理"，五条分支从"它能干什么"讲到"怎么管住它"。先扫这张图建立全局，再去下面「核心观点」逐条深读。</p>
+
+    <div class="mindmap">
+      <div class="mm-center">
+        <div class="lab">central concept · 核心概念</div>
+        <div class="ttl">Claude Code</div>
+        <div class="en">终端里的 AI 编码代理 · 项目级自主执行</div>
+      </div>
+      <div class="mm-stem"></div>
+
+      <div class="mm-branches">
+
+        <div class="mm-branch" style="--bc:#c43b2f;">
+          <div class="bh"><span class="bn">1</span><span class="bt">它能干什么</span></div>
+          <ul>
+            <li>读代码、改文件</li>
+            <li>跑命令、跑测试</li>
+            <li>用 Git（提交、分支等）</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#b9791b;">
+          <div class="bh"><span class="bn">2</span><span class="bt">不是自动补全</span></div>
+          <ul>
+            <li>项目级"自主执行"</li>
+            <li>给目标，它自己规划动手</li>
+            <li>跨多文件、多步骤完成</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#6b4fa0;">
+          <div class="bh"><span class="bn">3</span><span class="bt">靠上下文接历史</span></div>
+          <ul>
+            <li><code>CLAUDE.md</code> 记项目规则/历史</li>
+            <li>读整个代码库建立上下文</li>
+            <li>可借 MCP 接外部工具</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#0b6f8f;">
+          <div class="bh"><span class="bn">4</span><span class="bt">适合的工作流</span></div>
+          <ul>
+            <li>拉项目 → 交 AI 解构</li>
+            <li>解构 → 落地改造</li>
+            <li>承接 GitHub 能力链</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#2f8f5b;">
+          <div class="bh"><span class="bn">5</span><span class="bt">权限与安全</span></div>
+          <ul>
+            <li>别让它乱删乱改</li>
+            <li>敏感信息别入库</li>
+            <li>关键动作要人审/确认</li>
+          </ul>
+        </div>
+
+        <div class="mm-branch" style="--bc:#c43b2f;">
+          <div class="bh"><span class="bn">6</span><span class="bt">在 S31 的位置</span></div>
+          <ul>
+            <li>"下一步"第①条：用起来</li>
+            <li>承接 GitHub 拉项目能力链</li>
+            <li>对应 Harness 护栏思路</li>
+          </ul>
+        </div>
+
+      </div>
+      <p class="mm-hint">中心 → 6 条分支 → 各 2-3 个要点；与下文「核心观点」一一对应。</p>
+    </div>
+  </section>
+
+  <!-- ===== CORE VIEWPOINTS ===== -->
+  <section id="core">
+    <div class="sec-head">
+      <p class="kicker">core viewpoints</p>
+      <h2><span class="bar">核心观点：五条逐个讲透</span></h2>
+    </div>
+    <p>每张卡片三到四层：<span class="tag point">讲了什么</span>标准含义　<span class="tag plain">通俗解释</span>掰开揉碎　<span class="tag link">与你系统的关系</span>映射到 S31　<span class="tag risk">风险边界</span>哪里要小心。点开即读。</p>
+
+    <details class="dd" open>
+      <summary><span class="arw">▸</span><span class="lbl">① 在终端里运行的 AI 编码代理：读代码、改文件、跑命令、用 Git</span><span class="chip">是什么</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p><strong>Claude Code</strong> 是一个<strong>住在终端（命令行）里的 AI 编码代理</strong>。它不只是聊天，而是真的能<strong>在你的项目里动手</strong>：读懂代码库、编辑文件、执行命令与测试、并通过 Git 完成提交等版本操作。它运行在 <strong>CLI（Command-Line Interface，命令行界面）</strong>里，也有 IDE 集成与桌面端等形态。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>像请了一位<strong>能直接上手敲键盘的工程师助手</strong>坐在你的电脑前：你说需求，它去翻文件、改代码、运行验证，而不是只给你一段建议让你自己粘。</p>
+        </div>
+        <div class="layer"><span class="tag link">与你系统的关系</span>
+          <p>正是主页主题 07 那句"<strong>交给 AI 解构项目</strong>"的代表工具：拉下仓库后，让它通读并产出"它是干嘛的、怎么跑、关键文件在哪"的解构笔记。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">② 不是自动补全，而是项目级"自主执行"——给目标它干活</span><span class="chip">代理 vs 补全</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>传统的代码补全是"<strong>你打一半，它接下半句</strong>"；Claude Code 是<strong>代理（agent）</strong>：你给一个<strong>目标</strong>（"修这个 bug""加这个功能"），它会自己<strong>规划步骤、跨多个文件改动、运行验证、必要时反复迭代</strong>，直到达成目标。区别在于它处理的是"<strong>任务</strong>"而非"<strong>下一个字符</strong>"。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>补全像"输入法的联想词"，代理像"派活给一个会自己干完的实习生"——你说要什么结果，过程它自己安排。</p>
+        </div>
+        <div class="layer"><span class="tag link">与你系统的关系</span>
+          <p>这种"<strong>给目标、自主执行</strong>"恰是 S31 后台想要的能力，但也正因为自主，才更需要 <strong>Harness（马具/护栏）</strong>把它束住——见第⑤条。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>自主≠万能：任务越大越模糊，它越可能跑偏或做多。<strong>把目标拆小、给清验收标准</strong>，比一句"帮我把项目重构好"靠谱得多。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">③ 靠 CLAUDE.md / 上下文文档接上项目历史</span><span class="chip">上下文</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>代理要干好活，得"<strong>知道这个项目的来龙去脉</strong>"。Claude Code 约定用一个 <code>CLAUDE.md</code> 文件（放在项目里的上下文/规则文档），记录项目结构、约定、注意事项；它也会读代码库本身来建立上下文。还能通过 <strong>MCP（Model Context Protocol，模型上下文协议）</strong>这类开放协议，接上外部数据源与工具。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>像给新来的同事一份"<strong>入职手册</strong>"：项目怎么跑、规矩是什么、哪些雷不能踩。手册越清楚，他上手越快、越不容易闯祸。</p>
+        </div>
+        <div class="layer"><span class="tag link">与你系统的关系</span>
+          <p>直接呼应 S31 反复强调的"<strong>上下文沉淀 / 说明手册</strong>"：<code>CLAUDE.md</code> 就是把 BNY 教的"context.md（项目上下文文件）"思路落到 Claude Code 上的具体形态。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p><code>CLAUDE.md</code> 与上下文文档会被读取，<strong>别把账号、手机号、密钥等敏感信息写进去</strong>，更别让它进入会被提交的仓库。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">④ 适合"拉项目 → 交 AI 解构 → 落地"的工作流</span><span class="chip">工作流</span></summary>
+      <div class="dd-body">
+        <div class="flow">发现仓库 → git clone 拉到本地 → Claude Code 读懂并解构 → 改造/加功能 → 跑通并接进流程</div>
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>Claude Code 正好补上主页主题 07 能力链的"<strong>解构与改造</strong>"那一段：项目用 Git 拉到本地后，交给它通读、产出解构笔记、再按目标改造，直到跑通。它把"开源为我所用"从"看得懂"推进到"<strong>动得了手</strong>"。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>GitHub 把"原料"搬进门，Claude Code 是"<strong>会加工原料的师傅</strong>"——把别人的项目拆开、看明白、改成你要的样子。</p>
+        </div>
+        <div class="layer"><span class="tag link">与你系统的关系</span>
+          <p>对接主页 <a href="index.html#next">「下一步」</a>：①把 Claude Code 用起来、②把"GitHub 搜索→拉项目→交 AI 解构"练熟。两者本就是配套的一条链。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">⑤ 管好权限与安全：别让它乱删乱改，敏感信息别入库</span><span class="chip">权限护栏</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">讲了什么</span>
+          <p>能改文件、能跑命令，意味着也<strong>能误删、误改、跑出有副作用的命令</strong>。所以要给它<strong>护栏</strong>：按<strong>最小权限原则</strong>授权、关键操作要人确认、重要改动走 Git 分支以便回退、绝不把密钥/口令提交进仓库。自主能力越强，护栏越要先立。</p>
+        </div>
+        <div class="layer"><span class="tag plain">通俗解释</span>
+          <p>像给实习生权限：能写代码、能跑测试，但"删库、动正式数据、改制度"的钥匙不能随手给——先划好红线，再放手。</p>
+        </div>
+        <div class="layer"><span class="tag link">与你系统的关系</span>
+          <p>这正是 S31 的 <strong>Harness（马具）</strong>与 <strong>AI Guard（权限护栏）</strong>思想在工具上的落地：用状态机 + 校验 + 最小权限把"乱跑的马"束住。详见 <a href="index.html#t5">主页主题 05</a>。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>别图省事开"全自动免确认"：在不熟悉的仓库或有生产影响的环境里尤其危险。先在<strong>可回退的分支 / 沙箱</strong>里试，确认无误再放权。</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===== BRIDGE TO S31 ===== -->
+  <section id="bridge">
+    <div class="sec-head">
+      <p class="kicker">connect</p>
+      <h2><span class="bar">把 Claude Code 接回你的 S31 系统</span></h2>
+    </div>
+    <p>这页对应主页"下一步"清单的第一条，也是 GitHub 能力链的自然延伸。一句话定位：</p>
+
+    <div class="note-box">
+      <p class="t">Claude Code　=　"下一步：把 Claude Code 用起来" + 承接 GitHub 拉项目能力链</p>
+      <p style="margin:0;font-size:13.8px;line-height:1.9;color:#55514a;">能力链是：<strong>用 Git / GitHub 把项目拉到本地 → 交 Claude Code 在终端里解构与改造 → 跑通后接进自己的流程</strong>。它把"开源为我所用"从"看得懂"推进到"动得了手"。但越自主，越要先立护栏——这正是 S31 的 Harness / AI Guard 要管的事。</p>
+    </div>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">落地提醒：先理顺账号与上下文，再在可回退环境里放权</span><span class="chip">下一步怎么做</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag point">怎么做</span><p>照主页 <a href="index.html#next">「下一步」</a>：先把账号与登录链路理顺；网页端用于"长期记忆/汇总"，Claude Code 用于"在终端里读改项目"。给项目写 <code>CLAUDE.md</code> 当上下文手册。</p></div>
+        <div class="layer"><span class="tag link">配套看</span><p>前置技能见 <a href="git-github.html">Git &amp; GitHub</a>（拉项目）；文档/知识沉淀见 <a href="obsidian.html">Obsidian</a>；护栏思想见 <a href="index.html#t5">主页主题 05</a>。</p></div>
+        <div class="layer"><span class="tag risk">注意</span><p>账号/手机号等敏感信息<strong>别写进任何会被提交的文档或上下文文件</strong>；第一遍在小项目、可回退分支里试。</p></div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===== RESOURCES ===== -->
+  <section id="res">
+    <div class="sec-head">
+      <p class="kicker">library</p>
+      <h2><span class="bar">资料库：权威来源 + 检索入口</span></h2>
+    </div>
+    <div class="cards">
+      <a class="rc doc" href="https://www.anthropic.com/claude-code" target="_blank" rel="noopener"><span class="ic">¶</span><span class="tx"><span class="tt">官方主页：Claude Code（Anthropic）</span><span class="ds">anthropic.com/claude-code · "终端里的 AI 编码代理"官方介绍</span></span></a>
+      <a class="rc doc" href="https://docs.anthropic.com/en/docs/claude-code" target="_blank" rel="noopener"><span class="ic">¶</span><span class="tx"><span class="tt">官方文档：Claude Code Docs</span><span class="ds">docs.anthropic.com · 安装、CLAUDE.md、命令与最佳实践</span></span></a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=Claude+Code+tutorial+terminal+agent" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">YouTube 检索：Claude Code tutorial terminal agent</span><span class="ds">点开即相关教程列表，建议优先看官方频道与近期演示</span></span></a>
+      <a class="rc doc" href="index.html#next" target="_blank" rel="noopener"><span class="ic">¶</span><span class="tx"><span class="tt">回到原文：S31「下一步」与主题 07</span><span class="ds">index.html · 把 Claude Code 用起来 + GitHub 能力链</span></span></a>
+    </div>
+  </section>
+
+  <div class="endcap">
+    <p style="font-family:var(--mono);letter-spacing:1px;">END · CLAUDE CODE DEEP-DIVE</p>
+    <p>本页为官网与官方文档的转述与提炼，并接回 S31 的能力链　·　如与原始资料有出入，以原始资料为准</p>
+    <p style="margin-top:10px;"><a href="topics.html">← 延伸专题库</a>　·　<a href="index.html">S31 主页</a></p>
+  </div>
+
+</div>
+
+<button class="backtop" id="backtop" aria-label="回到顶部">↑</button>
+
+<script>
+  var bar = document.getElementById('progress');
+  var backtop = document.getElementById('backtop');
+  function onScroll(){
+    var h = document.documentElement;
+    var scrolled = h.scrollTop;
+    var max = h.scrollHeight - h.clientHeight;
+    bar.style.width = (max > 0 ? (scrolled / max) * 100 : 0) + '%';
+    if(scrolled > 600){ backtop.classList.add('show'); } else { backtop.classList.remove('show'); }
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+  backtop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+  var navlinks = Array.prototype.slice.call(document.querySelectorAll('.navlinks a'));
+  function highlight(){
+    var pos = window.scrollY + 120;
+    var current = sections.length ? sections[0].id : null;
+    sections.forEach(function(s){ if(s.offsetTop <= pos){ current = s.id; } });
+    navlinks.forEach(function(a){
+      var on = a.getAttribute('href') === '#' + current;
+      a.style.color = on ? 'var(--accent)' : 'var(--muted)';
+      a.style.fontWeight = on ? '700' : '400';
+    });
+  }
+  window.addEventListener('scroll', highlight, {passive:true});
+  highlight();
+</script>
+</body>
+</html>

@@ -123,12 +123,12 @@
   <header class="hero" id="top">
     <p class="kicker">topic library · 学生自学版</p>
     <h1>延伸专题库<br/>每个主题：一段视频 + 核心要点 + 缩略词全称</h1>
-    <p class="sub">把 S31 涉及到的每个知识点，都做成一个可直接观看 + 配套讲解的延伸专题。点封面即加载视频，不卡顿。</p>
+    <p class="sub">把 S31 涉及到的每个知识点，都做成一个可直接观看 + 配套讲解的延伸专题。点封面即加载视频，不卡顿；每张卡片底部的「📖 深读全文 →」可进入完整专题页（视频 + 思维导图 + 核心观点 + 缩略词）。</p>
     <div class="legend">
       <span class="lg"><span class="dot" style="background:#2f8f5b;"></span>绿标 = 已验证真实视频（点开内嵌播放）</span>
       <span class="lg"><span class="dot" style="background:#0b6f8f;"></span>蓝标 = YouTube 检索入口（点开看该主题讲解）</span>
     </div>
-    <div class="disclaimer">为什么有两种：学习/工具类主题能稳定找到并验证具体视频，直接内嵌；部分前沿技术主题（如 GEPA、状态机）暂无稳定的单条权威视频，先用"检索入口"兜底——你把想要的具体视频链接发我，我可随时把它换成内嵌的绿标视频。涉及外部视频内容均为转述提炼。</div>
+    <div class="disclaimer">14 个主题中已有 11 个嵌入了经验证的真实视频（绿标），仅 3 个（抽卡心理、编译器中间表示、Claude Code）暂无稳定的单条权威视频，先用"检索入口"兜底（蓝标）——你把想要的具体视频链接发我，我可随时换成内嵌绿标。每个主题都配有「深读全文」专题页。涉及外部视频内容均为转述提炼。</div>
   </header>
 
 
@@ -146,10 +146,10 @@
           <div class="vt-title">专注模式 vs 发散模式（灵感与孵化）</div>
           <div class="vt-en">Focused vs Diffuse Mode · Incubation</div>
         </div>
-        <a class="lite" href="https://www.youtube.com/results?search_query=focused+vs+diffuse+mode+learning+how+to+learn" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#6b4fa0,#0b6f8f);">
-          <span class="badge search">▶ YouTube 检索</span><span class="play"></span>
-          <span class="cap">看 Barbara Oakley「Learning How to Learn」讲专注/发散模式</span>
-        </a>
+        <div class="lite" data-yt="O96fE1E-rf8" style="background-image:url(https://i.ytimg.com/vi/O96fE1E-rf8/hqdefault.jpg);">
+          <span class="badge real">已验证 · 点击播放</span><span class="play"></span>
+          <span class="cap">Learning how to learn · Barbara Oakley（TEDx）</span>
+        </div>
         <div class="vt-body">
           <p class="vt-tldr"><b>对应 S31 主题：</b>"灵感不是等来的，是高压后留白逼出来的"。</p>
           <ul class="vt-points">
@@ -253,10 +253,10 @@
           <div class="vt-title">GEPA 反思式提示词进化</div>
           <div class="vt-en">Genetic-Pareto Reflective Prompt Evolution</div>
         </div>
-        <a class="lite" href="https://www.youtube.com/results?search_query=GEPA+DSPy+reflective+prompt+optimization" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#0b6f8f,#2f8f5b);">
-          <span class="badge search">▶ YouTube 检索</span><span class="play"></span>
-          <span class="cap">看 GEPA 如何用自然语言反思迭代提示词</span>
-        </a>
+        <div class="lite" data-yt="rrtxyZ4Vnv8" style="background-image:url(https://i.ytimg.com/vi/rrtxyZ4Vnv8/hqdefault.jpg);">
+          <span class="badge real">已验证 · 点击播放</span><span class="play"></span>
+          <span class="cap">Matei Zaharia · GEPA + DSPy（Berkeley RDI）</span>
+        </div>
         <div class="vt-body">
           <p class="vt-tldr"><b>易混淆：</b>GEPA ≠ JEPA。它是提示词优化器，不是模型架构。</p>
           <ul class="vt-points">
@@ -274,10 +274,10 @@
           <div class="vt-title">上下文工程</div>
           <div class="vt-en">Context Engineering</div>
         </div>
-        <a class="lite" href="https://www.youtube.com/results?search_query=context+engineering+LLM+agents+explained" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#6b4fa0,#c43b2f);">
-          <span class="badge search">▶ YouTube 检索</span><span class="play"></span>
-          <span class="cap">看"管理上下文"为何比调一句 prompt 更重要</span>
-        </a>
+        <div class="lite" data-yt="vD0E3EUb8-8" style="background-image:url(https://i.ytimg.com/vi/vD0E3EUb8-8/hqdefault.jpg);">
+          <span class="badge real">已验证 · 点击播放</span><span class="play"></span>
+          <span class="cap">Context vs Prompt Engineering（IBM Technology）</span>
+        </div>
         <div class="vt-body">
           <p class="vt-tldr"><b>对应 S31 主题：</b>BNY 的 context.md、执行手册、云端记忆。</p>
           <ul class="vt-points">
@@ -295,10 +295,10 @@
           <div class="vt-title">知识蒸馏</div>
           <div class="vt-en">Knowledge Distillation</div>
         </div>
-        <a class="lite" href="https://www.youtube.com/results?search_query=knowledge+distillation+teacher+student+model+explained" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#b9791b,#6b4fa0);">
-          <span class="badge search">▶ YouTube 检索</span><span class="play"></span>
-          <span class="cap">看"教师-学生模型"如何把大模型能力压进小模型</span>
-        </a>
+        <div class="lite" data-yt="jrJKRYAdh7I" style="background-image:url(https://i.ytimg.com/vi/jrJKRYAdh7I/hqdefault.jpg);">
+          <span class="badge real">已验证 · 点击播放</span><span class="play"></span>
+          <span class="cap">Knowledge Distillation: How LLMs train each other（Julia Turc）</span>
+        </div>
         <div class="vt-body">
           <p class="vt-tldr"><b>对应 S31 主题：</b>Nuwa 的"蒸馏形/法/神"。</p>
           <ul class="vt-points">
@@ -349,10 +349,10 @@
           <div class="vt-title">JSON Schema 机读规则</div>
           <div class="vt-en">JSON Schema · Validation</div>
         </div>
-        <a class="lite" href="https://www.youtube.com/results?search_query=JSON+schema+validation+explained" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#0b6f8f,#2b2b28);">
-          <span class="badge search">▶ YouTube 检索</span><span class="play"></span>
-          <span class="cap">看 Schema 如何自动拦下不合规数据</span>
-        </a>
+        <div class="lite" data-yt="kK-_gL7Vsc0" style="background-image:url(https://i.ytimg.com/vi/kK-_gL7Vsc0/hqdefault.jpg);">
+          <span class="badge real">已验证 · 点击播放</span><span class="play"></span>
+          <span class="cap">What is JSON Schema（Automation Step by Step）</span>
+        </div>
         <div class="vt-body">
           <p class="vt-tldr"><b>对应 S31 主题：</b>"Schema 是给机器读、给系统校验的规则层"。</p>
           <ul class="vt-points">
@@ -370,10 +370,10 @@
           <div class="vt-title">有限状态机 FSM</div>
           <div class="vt-en">Finite State Machine</div>
         </div>
-        <a class="lite" href="https://www.youtube.com/results?search_query=finite+state+machine+explained+beginners" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#2f8f5b,#0b6f8f);">
-          <span class="badge search">▶ YouTube 检索</span><span class="play"></span>
-          <span class="cap">看状态、转移、事件——流程引擎的基础</span>
-        </a>
+        <div class="lite" data-yt="kb-Ww8HaHuE" style="background-image:url(https://i.ytimg.com/vi/kb-Ww8HaHuE/hqdefault.jpg);">
+          <span class="badge real">已验证 · 点击播放</span><span class="play"></span>
+          <span class="cap">Finite State Machine Explained（ALL ABOUT ELECTRONICS）</span>
+        </div>
         <div class="vt-body">
           <p class="vt-tldr"><b>对应 S31 主题：</b>知识单元"知道自己在哪、下一步去哪"。</p>
           <ul class="vt-points">
@@ -561,6 +561,19 @@
   }
   window.addEventListener('scroll', highlight, {passive:true});
   highlight();
+
+  // 给每张主题卡片追加"深读全文 →"链接（指向对应的独立深读专题页，顺序与卡片一致）
+  (function(){
+    var deepLinks=['focused-diffuse.html','spaced-repetition.html','gacha-reward.html','lecun-jepa.html','gepa.html','context-engineering.html','knowledge-distillation.html','para.html','json-schema.html','finite-state-machine.html','intermediate-representation.html','git-github.html','obsidian.html','claude-code.html'];
+    document.querySelectorAll('.vtopic').forEach(function(card,i){
+      var url=deepLinks[i]; if(!url) return;
+      var body=card.querySelector('.vt-body'); if(!body) return;
+      var a=document.createElement('a');
+      a.href=url; a.textContent='📖 深读全文 →';
+      a.style.cssText='display:block;margin-top:12px;padding-top:11px;border-top:1px solid var(--line);font-weight:800;color:var(--accent);font-size:13.5px;';
+      body.appendChild(a);
+    });
+  })();
 </script>
 </body>
 </html>
