@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>延伸专题库 · 每个主题一段视频 + 讲解 | S31</title>
+<meta name="description" content="把 S31 涉及的每个知识点做成可观看的延伸专题：嵌入 YouTube 视频 + 核心要点 + 缩略词全称，方便学生逐个学习。" />
+<style>
+  :root{
+    --bg:#fbfaf7; --panel:#f7f3ed; --accent:#c43b2f; --ink:#2b2b28;
+    --ink2:#3f3d38; --muted:#77736b; --line:rgba(120,112,100,.20);
+    --teal:#0b6f8f; --green:#2f8f5b; --amber:#b9791b; --purple:#6b4fa0;
+    --serif:'Noto Serif SC','Source Han Serif SC','Songti SC',STSong,Georgia,serif;
+    --sans:'Noto Sans SC','PingFang SC','Microsoft YaHei',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --mono:'JetBrains Mono','SF Mono',Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--ink2);font-family:var(--sans);line-height:1.9;-webkit-font-smoothing:antialiased;}
+  a{color:var(--teal);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  code{font-family:var(--mono);font-size:.86em;color:var(--teal);background:rgba(196,59,47,.08);padding:2px 6px;border-radius:4px;word-break:break-word;}
+
+  #progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:60;transition:width .1s linear;}
+
+  .topbar{position:sticky;top:0;z-index:50;background:rgba(251,250,247,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  .topbar-inner{max-width:1100px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;}
+  .brand{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;white-space:nowrap;}
+  .navlinks{display:flex;flex-wrap:wrap;gap:4px 9px;font-size:12px;}
+  .navlinks a{color:var(--muted);padding:2px 4px;border-radius:4px;}
+  .navlinks a:hover{color:var(--accent);text-decoration:none;background:rgba(196,59,47,.07);}
+  .home-link{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--muted);border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 12px;white-space:nowrap;}
+  .home-link:hover{color:var(--accent);border-color:var(--accent);text-decoration:none;}
+
+  .wrap{max-width:1100px;margin:0 auto;padding:0 18px 80px;}
+  .hero{padding:40px 0 22px;border-bottom:1px solid var(--line);max-width:780px;}
+  .kicker{margin:0 0 12px;color:var(--accent);font-size:12px;letter-spacing:3px;text-transform:uppercase;font-family:var(--mono);}
+  h1{margin:0 0 14px;color:var(--ink);font-size:30px;line-height:1.28;font-weight:800;font-family:var(--serif);letter-spacing:.3px;}
+  .sub{margin:0;color:var(--muted);font-size:14px;line-height:1.7;}
+  .lead{margin:16px 0 0;color:var(--ink2);font-size:15px;line-height:1.9;text-align:justify;}
+
+  h2{margin:0;color:var(--ink);font-size:23px;line-height:1.35;font-weight:700;font-family:var(--serif);}
+  h2 .bar{display:inline-block;padding-left:12px;border-left:4px solid var(--accent);}
+  .sec-head{margin:44px 0 14px;max-width:780px;}
+  .sec-head .kicker{margin-bottom:8px;}
+  p{margin:0 0 14px;font-size:15px;line-height:1.9;word-break:break-word;}
+  strong{color:var(--ink);font-weight:700;}
+
+  .disclaimer{font-size:12px;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:12px 14px;margin:16px 0;max-width:780px;}
+
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0;max-width:780px;}
+  .legend .lg{font-size:12px;font-family:var(--mono);border:1px solid var(--line);border-radius:20px;padding:4px 11px;background:#fff;}
+  .lg .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:18px;}
+  .vtopic{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.04);}
+  .vt-top{padding:15px 16px 4px;}
+  .vt-no{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:1px;}
+  .vt-title{font-family:var(--serif);font-size:17px;font-weight:800;color:var(--ink);line-height:1.32;margin:3px 0 0;}
+  .vt-en{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px;}
+
+  .lite{position:relative;display:block;margin:12px 16px 0;padding-top:56.25%;border-radius:12px;overflow:hidden;background:#1b1b1b center/cover no-repeat;cursor:pointer;border:1px solid var(--line);}
+  .lite::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.45));}
+  .lite .play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:60px;height:42px;border-radius:11px;background:rgba(196,59,47,.92);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.4);transition:transform .15s,background .15s;}
+  .lite:hover .play{transform:translate(-50%,-50%) scale(1.07);background:#c43b2f;}
+  .lite .play::after{content:"";border-style:solid;border-width:9px 0 9px 15px;border-color:transparent transparent transparent #fff;margin-left:3px;}
+  .lite .badge{position:absolute;left:10px;top:10px;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.5px;padding:3px 8px;border-radius:20px;color:#fff;}
+  .lite .badge.real{background:rgba(47,143,91,.92);}
+  .lite .badge.search{background:rgba(11,111,143,.92);}
+  .lite .cap{position:absolute;left:10px;right:10px;bottom:10px;color:#fff;font-size:12px;line-height:1.4;text-shadow:0 1px 3px rgba(0,0,0,.6);}
+  .lite iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+
+  .vt-body{padding:12px 16px 16px;display:flex;flex-direction:column;gap:0;flex:1;}
+  .vt-tldr{font-size:13.6px;line-height:1.75;color:var(--ink2);margin:0 0 8px;}
+  .vt-tldr b{color:var(--ink);}
+  .vt-points{margin:0 0 10px;padding:0;list-style:none;}
+  .vt-points li{position:relative;padding-left:15px;margin:0 0 5px;font-size:13px;line-height:1.6;color:var(--ink2);}
+  .vt-points li::before{content:"";position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:50%;background:var(--accent);}
+  .vt-acro{margin-top:auto;padding-top:10px;border-top:1px dashed var(--line);font-size:11.8px;line-height:1.7;color:var(--muted);}
+  .vt-acro b{color:var(--teal);font-family:var(--mono);font-size:11px;}
+  .vt-more{margin-top:8px;font-size:12px;}
+
+  .gloss{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:16px;}
+  .gl{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;}
+  .gl .abbr{font-family:var(--mono);font-weight:700;color:var(--accent);font-size:13px;}
+  .gl .full{font-size:12.5px;color:var(--ink2);margin-top:2px;line-height:1.6;}
+  .gl .full .cn{color:var(--muted);}
+
+  .endcap{margin:48px 0 0;padding:24px 0 0;border-top:1px solid var(--line);text-align:center;}
+  .endcap p{color:var(--muted);font-size:12.5px;}
+  .endcap a{font-weight:700;}
+  .backtop{position:fixed;right:18px;bottom:18px;z-index:40;width:42px;height:42px;border-radius:50%;background:var(--accent);color:#fff;border:0;cursor:pointer;font-size:18px;box-shadow:0 8px 20px rgba(196,59,47,.35);opacity:0;pointer-events:none;transition:opacity .2s;}
+  .backtop.show{opacity:1;pointer-events:auto;}
+
+  @media (max-width:720px){
+    .grid{grid-template-columns:1fr;}
+    .gloss{grid-template-columns:1fr;}
+    h1{font-size:25px;} h2{font-size:20px;}
+    .navlinks{display:none;}
+    .topbar-inner{justify-content:space-between;}
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">延伸专题库</span>
+    <nav class="navlinks">
+      <a href="#learn">学习/认知</a>
+      <a href="#edu">教育粘性</a>
+      <a href="#ai">AI / 架构</a>
+      <a href="#eng">工程 / 工具</a>
+      <a href="#gloss">缩略词全表</a>
+    </nav>
+    <a class="home-link" href="index.html">← 返回主页 S31</a>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="hero" id="top">
+    <p class="kicker">topic library · 学生自学版</p>
+    <h1>延伸专题库<br/>每个主题：一段视频 + 核心要点 + 缩略词全称</h1>
+    <p class="sub">把 S31 涉及到的每个知识点，都做成一个可直接观看 + 配套讲解的延伸专题。点封面即加载视频，不卡顿。</p>
+    <div class="legend">
+      <span class="lg"><span class="dot" style="background:#2f8f5b;"></span>绿标 = 已验证真实视频（点开内嵌播放）</span>
+      <span class="lg"><span class="dot" style="background:#0b6f8f;"></span>蓝标 = YouTube 检索入口（点开看该主题讲解）</span>
+    </div>
+    <div class="disclaimer">为什么有两种：学习/工具类主题能稳定找到并验证具体视频，直接内嵌；部分前沿技术主题（如 GEPA、状态机）暂无稳定的单条权威视频，先用"检索入口"兜底——你把想要的具体视频链接发我，我可随时把它换成内嵌的绿标视频。涉及外部视频内容均为转述提炼。</div>
+  </header>
+
+
+  <!-- ============ 学习与认知 ============ -->
+  <section id="learn">
+    <div class="sec-head">
+      <p class="kicker">section 01 · cognition</p>
+      <h2><span class="bar">学习与认知</span></h2>
+    </div>
+    <div class="grid">
+
+      <div class="vtopic">
+        <div class="vt-top">
+          <div class="vt-no">TOPIC 01</div>
+          <div class="vt-title">专注模式 vs 发散模式（灵感与孵化）</div>
+          <div class="vt-en">Focused vs Diffuse Mode · Incubation</div>
+        </div>
+        <a class="lite" href="https://www.youtube.com/results?search_query=focused+vs+diffuse+mode+learning+how+to+learn" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#6b4fa0,#0b6f8f);">
+          <span class="badge search">▶ YouTube 检索</span><span class="play"></span>
+          <span class="cap">看 Barbara Oakley「Learning How to Learn」讲专注/发散模式</span>
+        </a>
+        <div class="vt-body">
+          <p class="vt-tldr"><b>对应 S31 主题：</b>"灵感不是等来的，是高压后留白逼出来的"。</p>
+          <ul class="vt-points">
+            <li>大脑有两种模式：<b>专注</b>（紧盯问题、走熟悉神经通路）与<b>发散</b>（放松走神、远距离连点）。</li>
+            <li>洗澡、散步、睡前的灵光，正是发散模式在做联想——但前提是先有专注投入。</li>
+            <li>方法：先猛攻 → 再刻意休息 → 让潜意识"孵化"，回来常有突破。</li>
+          </ul>
+          <div class="vt-acro"><b>DMN</b> = Default Mode Network（默认模式网络，休息时活跃的脑网络）</div>
+        </div>
+      </div>
+
+      <div class="vtopic">
+        <div class="vt-top">
+          <div class="vt-no">TOPIC 02</div>
+          <div class="vt-title">间隔重复 & 主动回忆</div>
+          <div class="vt-en">Spaced Repetition · Active Recall</div>
+        </div>
+        <div class="lite" data-yt="eauQac_23R0" style="background-image:url(https://i.ytimg.com/vi/eauQac_23R0/hqdefault.jpg);">
+          <span class="badge real">已验证 · 点击播放</span><span class="play"></span>
+          <span class="cap">How to use Anki like a PRO — Justin Sung</span>
+        </div>
+        <div class="vt-body">
+          <p class="vt-tldr"><b>对应 S31 主题：</b>单词卡"把记忆钉得深"，复习节奏交给算法。</p>
+          <ul class="vt-points">
+            <li>记忆会沿"遗忘曲线"衰减；在<b>快忘没忘</b>时复习，记得最牢。</li>
+            <li><b>主动回忆</b>（盖住答案先自己想）比反复重读有效得多。</li>
+            <li>Anki 用 SRS 算法自动安排复习间隔：会的拉长、不会的缩短。</li>
+          </ul>
+          <div class="vt-acro"><b>SRS</b> = Spaced Repetition System（间隔重复系统）　<b>FSRS</b> = Free Spaced Repetition Scheduler</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ 教育与粘性 ============ -->
+  <section id="edu">
+    <div class="sec-head">
+      <p class="kicker">section 02 · engagement</p>
+      <h2><span class="bar">教育与粘性设计</span></h2>
+    </div>
+    <div class="grid">
+
+      <div class="vtopic">
+        <div class="vt-top">
+          <div class="vt-no">TOPIC 03</div>
+          <div class="vt-title">抽卡 / 变比强化心理</div>
+          <div class="vt-en">Gacha · Variable-Ratio Reinforcement</div>
+        </div>
+        <a class="lite" href="https://www.youtube.com/results?search_query=variable+ratio+reinforcement+gacha+loot+box+psychology" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#c43b2f,#b9791b);">
+          <span class="badge search">▶ YouTube 检索</span><span class="play"></span>
+          <span class="cap">看抽卡/盲盒为何让人停不下来的行为心理学</span>
+        </a>
+        <div class="vt-body">
+          <p class="vt-tldr"><b>对应 S31 主题：</b>单词卡的稀有度、盲盒、集齐兑换。</p>
+          <ul class="vt-points">
+            <li><b>变比强化</b>（Skinner）：奖励在"不确定次数后"才出现，最容易上头。</li>
+            <li>教育场景要克制——把"不确定奖励"绑在<b>学习成果</b>上，而非花钱抽卡。</li>
+            <li>结合收藏完形（差一张就集齐）放大动力，但守住学习目标这条底线。</li>
+          </ul>
+          <div class="vt-acro"><b>SSR</b> = Super Special Rare（超稀有）　<b>RNG</b> = Random Number Generator（随机数）　<b>LTV</b> = Lifetime Value（客户终身价值）</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ============ AI 与架构 ============ -->
+  <section id="ai">
+    <div class="sec-head">
+      <p class="kicker">section 03 · ai &amp; architecture</p>
+      <h2><span class="bar">AI 与架构</span></h2>
+    </div>
+    <div class="grid">
+
+      <div class="vtopic">
+        <div class="vt-top">
+          <div class="vt-no">TOPIC 04</div>
+          <div class="vt-title">JEPA 与世界模型（Yann LeCun）</div>
+          <div class="vt-en">Joint-Embedding Predictive Architecture</div>
+        </div>
+        <div class="lite" data-yt="yUmDRxV0krg" style="background-image:url(https://i.ytimg.com/vi/yUmDRxV0krg/hqdefault.jpg);">
+          <span class="badge real">已验证 · 点击播放</span><span class="play"></span>
+          <span class="cap">Yann LeCun · JEPA / World Models（Harvard CMSA）</span>
+        </div>
+        <div class="vt-body">
+          <p class="vt-tldr"><b>S31 核心：</b>"先抓本质，再忽略噪声"——这就是它的源头。</p>
+          <ul class="vt-points">
+            <li>别在像素/原始空间重建一切，改在<b>抽象表征空间</b>预测，主动丢噪声。</li>
+            <li>目标驱动 AI：用世界模型规划行动，而不是逐词生成。</li>
+            <li>注意：原笔记把这套思想误标成了 GEPA，二者不同（见下条）。</li>
+          </ul>
+          <div class="vt-acro"><b>JEPA</b> = Joint-Embedding Predictive Architecture（联合嵌入预测架构）　<b>LLM</b> = Large Language Model<br/>📄 已有完整专题：<a href="lecun-jepa.html">JEPA 讲座深读（视频+思维导图）→</a></div>
+        </div>
+      </div>
+
+      <div class="vtopic">
+        <div class="vt-top">
+          <div class="vt-no">TOPIC 05</div>
+          <div class="vt-title">GEPA 反思式提示词进化</div>
+          <div class="vt-en">Genetic-Pareto Reflective Prompt Evolution</div>
+        </div>
+        <a class="lite" href="https://www.youtube.com/results?search_query=GEPA+DSPy+reflective+prompt+optimization" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#0b6f8f,#2f8f5b);">
+          <span class="badge search">▶ YouTube 检索</span><span class="play"></span>
+          <span class="cap">看 GEPA 如何用自然语言反思迭代提示词</span>
+        </a>
+        <div class="vt-body">
+          <p class="vt-tldr"><b>易混淆：</b>GEPA ≠ JEPA。它是提示词优化器，不是模型架构。</p>
+          <ul class="vt-points">
+            <li>让模型<b>反思自己的运行轨迹</b>，诊断问题、提出更好的提示词。</li>
+            <li>在"帕累托前沿"保留多条优解再重组，像进化算法。</li>
+            <li>论文称比强化学习(GRPO)用更少尝试就能更好。</li>
+          </ul>
+          <div class="vt-acro"><b>GEPA</b> = Genetic-Pareto（遗传-帕累托）　<b>RL</b> = Reinforcement Learning（强化学习）　<b>GRPO</b> = Group Relative Policy Optimization</div>
+        </div>
+      </div>
+
+      <div class="vtopic">
+        <div class="vt-top">
+          <div class="vt-no">TOPIC 06</div>
+          <div class="vt-title">上下文工程</div>
+          <div class="vt-en">Context Engineering</div>
+        </div>
+        <a class="lite" href="https://www.youtube.com/results?search_query=context+engineering+LLM+agents+explained" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#6b4fa0,#c43b2f);">
+          <span class="badge search">▶ YouTube 检索</span><span class="play"></span>
+          <span class="cap">看"管理上下文"为何比调一句 prompt 更重要</span>
+        </a>
+        <div class="vt-body">
+          <p class="vt-tldr"><b>对应 S31 主题：</b>BNY 的 context.md、执行手册、云端记忆。</p>
+          <ul class="vt-points">
+            <li>不再只打磨一句提示，而是<b>系统管理"模型每步该看到什么"</b>。</li>
+            <li>把上下文窗口当稀缺资源：检索、记忆、压缩、工具一起设计。</li>
+            <li>解决 LLM"开新窗口就失忆"的根本痛点。</li>
+          </ul>
+          <div class="vt-acro"><b>RAG</b> = Retrieval-Augmented Generation（检索增强生成）　<b>MCP</b> = Model Context Protocol　<b>KV cache</b> = Key-Value 缓存</div>
+        </div>
+      </div>
+
+      <div class="vtopic">
+        <div class="vt-top">
+          <div class="vt-no">TOPIC 07</div>
+          <div class="vt-title">知识蒸馏</div>
+          <div class="vt-en">Knowledge Distillation</div>
+        </div>
+        <a class="lite" href="https://www.youtube.com/results?search_query=knowledge+distillation+teacher+student+model+explained" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#b9791b,#6b4fa0);">
+          <span class="badge search">▶ YouTube 检索</span><span class="play"></span>
+          <span class="cap">看"教师-学生模型"如何把大模型能力压进小模型</span>
+        </a>
+        <div class="vt-body">
+          <p class="vt-tldr"><b>对应 S31 主题：</b>Nuwa 的"蒸馏形/法/神"。</p>
+          <ul class="vt-points">
+            <li>严格义：用大"<b>教师模型</b>"训练小"<b>学生模型</b>"，省算力保性能。</li>
+            <li>S31 讲的多是<b>提示层的"风格/方法迁移"</b>，与训练级蒸馏不同。</li>
+            <li>分清你要复制的是外观(形)、方法(法)还是视角(神)。</li>
+          </ul>
+          <div class="vt-acro"><b>KD</b> = Knowledge Distillation（知识蒸馏）　教师=Teacher，学生=Student</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ============ 工程与工具 ============ -->
+  <section id="eng">
+    <div class="sec-head">
+      <p class="kicker">section 04 · engineering &amp; tools</p>
+      <h2><span class="bar">工程与工具</span></h2>
+    </div>
+    <div class="grid">
+
+      <div class="vtopic">
+        <div class="vt-top">
+          <div class="vt-no">TOPIC 08</div>
+          <div class="vt-title">PARA 知识组织法</div>
+          <div class="vt-en">Projects · Areas · Resources · Archives</div>
+        </div>
+        <div class="lite" data-yt="RvsrM1uYCmc" style="background-image:url(https://i.ytimg.com/vi/RvsrM1uYCmc/hqdefault.jpg);">
+          <span class="badge real">已验证 · 点击播放</span><span class="play"></span>
+          <span class="cap">Tiago Forte — The PARA Method</span>
+        </div>
+        <div class="vt-body">
+          <p class="vt-tldr"><b>对应 S31 主题：</b>"PARA 是骨架"，知识库的物理结构。</p>
+          <ul class="vt-points">
+            <li>一切数字信息归入四类：<b>项目 / 领域 / 资源 / 归档</b>。</li>
+            <li>精髓：按"<b>可行动程度</b>"分类，而不是按学科主题。</li>
+            <li>项目有截止线，领域要长期维护；做完就从项目移到归档。</li>
+          </ul>
+          <div class="vt-acro"><b>PARA</b> = Projects（项目）/ Areas（领域）/ Resources（资源）/ Archives（归档）</div>
+        </div>
+      </div>
+
+      <div class="vtopic">
+        <div class="vt-top">
+          <div class="vt-no">TOPIC 09</div>
+          <div class="vt-title">JSON Schema 机读规则</div>
+          <div class="vt-en">JSON Schema · Validation</div>
+        </div>
+        <a class="lite" href="https://www.youtube.com/results?search_query=JSON+schema+validation+explained" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#0b6f8f,#2b2b28);">
+          <span class="badge search">▶ YouTube 检索</span><span class="play"></span>
+          <span class="cap">看 Schema 如何自动拦下不合规数据</span>
+        </a>
+        <div class="vt-body">
+          <p class="vt-tldr"><b>对应 S31 主题：</b>"Schema 是给机器读、给系统校验的规则层"。</p>
+          <ul class="vt-points">
+            <li>用 JSON 写的<b>结构契约</b>：规定字段、类型、取值范围。</li>
+            <li>能被程序<b>自动校验</b>，不合规直接打回——像表单必填校验。</li>
+            <li>只保证"结构对"，不保证"内容对"，仍需业务规则兜底。</li>
+          </ul>
+          <div class="vt-acro"><b>JSON</b> = JavaScript Object Notation　Schema = 模式/规格</div>
+        </div>
+      </div>
+
+      <div class="vtopic">
+        <div class="vt-top">
+          <div class="vt-no">TOPIC 10</div>
+          <div class="vt-title">有限状态机 FSM</div>
+          <div class="vt-en">Finite State Machine</div>
+        </div>
+        <a class="lite" href="https://www.youtube.com/results?search_query=finite+state+machine+explained+beginners" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#2f8f5b,#0b6f8f);">
+          <span class="badge search">▶ YouTube 检索</span><span class="play"></span>
+          <span class="cap">看状态、转移、事件——流程引擎的基础</span>
+        </a>
+        <div class="vt-body">
+          <p class="vt-tldr"><b>对应 S31 主题：</b>知识单元"知道自己在哪、下一步去哪"。</p>
+          <ul class="vt-points">
+            <li>系统任一时刻只处于<b>有限个明确状态之一</b>，靠事件合法转移。</li>
+            <li>像快递物流：已揽收→运输中→派送中→已签收，不能乱跳。</li>
+            <li>把固定流水线升级成可分叉、可回退、可审计的流程。</li>
+          </ul>
+          <div class="vt-acro"><b>FSM</b> = Finite State Machine（有限状态机）　<b>DFA</b> = Deterministic Finite Automaton</div>
+        </div>
+      </div>
+
+      <div class="vtopic">
+        <div class="vt-top">
+          <div class="vt-no">TOPIC 11</div>
+          <div class="vt-title">编译器中间表示 IR</div>
+          <div class="vt-en">Intermediate Representation</div>
+        </div>
+        <a class="lite" href="https://www.youtube.com/results?search_query=compiler+intermediate+representation+explained" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#6b4fa0,#2b2b28);">
+          <span class="badge search">▶ YouTube 检索</span><span class="play"></span>
+          <span class="cap">看源码如何先转成"中间形态"再编译</span>
+        </a>
+        <div class="vt-body">
+          <p class="vt-tldr"><b>对应 S31 主题：</b>K-IR 缓冲层的灵感来源。</p>
+          <ul class="vt-points">
+            <li>源码不直接变机器码，中间先转成"<b>便于分析优化</b>"的形态。</li>
+            <li>给上下游一个<b>稳定统一的交换格式</b>，减少传输损耗。</li>
+            <li>K-IR = 把这套思路搬到"知识"上：原料→结构化单元→成品。</li>
+          </ul>
+          <div class="vt-acro"><b>IR</b> = Intermediate Representation（中间表示）　<b>K-IR</b> = Knowledge Intermediate Representation</div>
+        </div>
+      </div>
+
+      <div class="vtopic">
+        <div class="vt-top">
+          <div class="vt-no">TOPIC 12</div>
+          <div class="vt-title">Git &amp; GitHub 入门</div>
+          <div class="vt-en">Version Control · Clone · Push · PR</div>
+        </div>
+        <div class="lite" data-yt="mAFoROnOfHs" style="background-image:url(https://i.ytimg.com/vi/mAFoROnOfHs/hqdefault.jpg);">
+          <span class="badge real">已验证 · 点击播放</span><span class="play"></span>
+          <span class="cap">Git &amp; GitHub Crash Course — freeCodeCamp</span>
+        </div>
+        <div class="vt-body">
+          <p class="vt-tldr"><b>对应 S31 主题：</b>"把源代码资产纳入自己的 AI 工作流"。</p>
+          <ul class="vt-points">
+            <li>Git 是<b>版本控制系统</b>，记录每次代码改动、可随时回退。</li>
+            <li>GitHub 是放仓库的远端：clone 拉下来、push 推上去、PR 协作。</li>
+            <li>这是"拉项目交给 AI 解构"这条能力链的第一步。</li>
+          </ul>
+          <div class="vt-acro"><b>VCS</b> = Version Control System（版本控制系统）　<b>PR</b> = Pull Request（合并请求）　repo = repository（仓库）</div>
+        </div>
+      </div>
+
+      <div class="vtopic">
+        <div class="vt-top">
+          <div class="vt-no">TOPIC 13</div>
+          <div class="vt-title">Obsidian 入门</div>
+          <div class="vt-en">本地 Markdown 知识库</div>
+        </div>
+        <div class="lite" data-yt="RSEIUZHlhk4" style="background-image:url(https://i.ytimg.com/vi/RSEIUZHlhk4/hqdefault.jpg);">
+          <span class="badge real">已验证 · 点击播放</span><span class="play"></span>
+          <span class="cap">Obsidian 从0到1完整攻略（含同步+打通AI）· 中文</span>
+        </div>
+        <div class="vt-body">
+          <p class="vt-tldr"><b>对应 S31 主题：</b>本地 md 沉淀、双向链接、与 AI 配合。</p>
+          <ul class="vt-points">
+            <li>笔记以<b>本地 Markdown 文件</b>存放，数据归你自己、AI 可直接读。</li>
+            <li>靠<b>双向链接</b>把笔记织成网络，而非死板的文件夹层级。</li>
+            <li>强在文档沉淀，但对代码项目可视化支持有限（那交给 IDE）。</li>
+          </ul>
+          <div class="vt-acro"><b>MD</b> = Markdown（轻量标记语言）　vault = 库（Obsidian 的笔记仓）</div>
+        </div>
+      </div>
+
+      <div class="vtopic">
+        <div class="vt-top">
+          <div class="vt-no">TOPIC 14</div>
+          <div class="vt-title">Claude Code 终端 AI 代理</div>
+          <div class="vt-en">Agentic Coding in the Terminal</div>
+        </div>
+        <a class="lite" href="https://www.youtube.com/results?search_query=Claude+Code+tutorial+terminal+agent" target="_blank" rel="noopener" style="background:linear-gradient(135deg,#c43b2f,#6b4fa0);">
+          <span class="badge search">▶ YouTube 检索</span><span class="play"></span>
+          <span class="cap">看终端里的 AI 如何读改项目、跑命令</span>
+        </a>
+        <div class="vt-body">
+          <p class="vt-tldr"><b>对应 S31 主题：</b>"下一步：把 Claude Code 用起来"。</p>
+          <ul class="vt-points">
+            <li>在<b>终端里</b>运行的 AI 编码代理：读代码、改文件、跑命令、用 Git。</li>
+            <li>不是自动补全，而是项目级"<b>自主执行</b>"——给目标，它干活。</li>
+            <li>正好承接你"拉项目 → 交 AI 解构 → 落地"的工作流。</li>
+          </ul>
+          <div class="vt-acro"><b>CLI</b> = Command-Line Interface（命令行界面）　<b>IDE</b> = Integrated Development Environment（集成开发环境）</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ============ 缩略词全表 ============ -->
+  <section id="gloss">
+    <div class="sec-head">
+      <p class="kicker">glossary</p>
+      <h2><span class="bar">缩略词全表（全称 + 中文）</span></h2>
+    </div>
+    <p style="max-width:780px;color:var(--muted);font-size:13.5px;">本站出现的所有缩略词集中在此。看到任何缩写记不清，回到这里查。</p>
+    <div class="gloss">
+      <div class="gl"><div class="abbr">JEPA</div><div class="full">Joint-Embedding Predictive Architecture<span class="cn"> · 联合嵌入预测架构（LeCun 的世界模型路线）</span></div></div>
+      <div class="gl"><div class="abbr">GEPA</div><div class="full">Genetic-Pareto (Reflective Prompt Evolution)<span class="cn"> · 遗传-帕累托 反思式提示词进化</span></div></div>
+      <div class="gl"><div class="abbr">LLM</div><div class="full">Large Language Model<span class="cn"> · 大语言模型</span></div></div>
+      <div class="gl"><div class="abbr">RL / GRPO</div><div class="full">Reinforcement Learning / Group Relative Policy Optimization<span class="cn"> · 强化学习 / 组相对策略优化</span></div></div>
+      <div class="gl"><div class="abbr">DMN</div><div class="full">Default Mode Network<span class="cn"> · 默认模式网络（休息时活跃，与发散思维相关）</span></div></div>
+      <div class="gl"><div class="abbr">SRS / FSRS</div><div class="full">Spaced Repetition System / Free Spaced Repetition Scheduler<span class="cn"> · 间隔重复系统 / 自由间隔重复调度器</span></div></div>
+      <div class="gl"><div class="abbr">SSR</div><div class="full">Super Special Rare<span class="cn"> · 超稀有（抽卡最高稀有度之一）</span></div></div>
+      <div class="gl"><div class="abbr">RNG</div><div class="full">Random Number Generator<span class="cn"> · 随机数生成器（抽卡随机性）</span></div></div>
+      <div class="gl"><div class="abbr">LTV</div><div class="full">Lifetime Value<span class="cn"> · 客户终身价值</span></div></div>
+      <div class="gl"><div class="abbr">PARA</div><div class="full">Projects · Areas · Resources · Archives<span class="cn"> · 项目 / 领域 / 资源 / 归档</span></div></div>
+      <div class="gl"><div class="abbr">JSON</div><div class="full">JavaScript Object Notation<span class="cn"> · 一种通用数据格式</span></div></div>
+      <div class="gl"><div class="abbr">FSM / DFA</div><div class="full">Finite State Machine / Deterministic Finite Automaton<span class="cn"> · 有限状态机 / 确定性有限自动机</span></div></div>
+      <div class="gl"><div class="abbr">IR / K-IR</div><div class="full">Intermediate Representation / Knowledge-IR<span class="cn"> · 中间表示 / 知识中间表示</span></div></div>
+      <div class="gl"><div class="abbr">RAG</div><div class="full">Retrieval-Augmented Generation<span class="cn"> · 检索增强生成</span></div></div>
+      <div class="gl"><div class="abbr">MCP</div><div class="full">Model Context Protocol<span class="cn"> · 模型上下文协议</span></div></div>
+      <div class="gl"><div class="abbr">KD</div><div class="full">Knowledge Distillation<span class="cn"> · 知识蒸馏（教师→学生模型）</span></div></div>
+      <div class="gl"><div class="abbr">SOP</div><div class="full">Standard Operating Procedure<span class="cn"> · 标准作业流程</span></div></div>
+      <div class="gl"><div class="abbr">VCS / PR</div><div class="full">Version Control System / Pull Request<span class="cn"> · 版本控制系统 / 合并请求</span></div></div>
+      <div class="gl"><div class="abbr">CLI / IDE</div><div class="full">Command-Line Interface / Integrated Development Environment<span class="cn"> · 命令行界面 / 集成开发环境</span></div></div>
+      <div class="gl"><div class="abbr">MD / YAML</div><div class="full">Markdown / YAML Ain't Markup Language<span class="cn"> · 轻量标记语言 / 树状配置数据格式</span></div></div>
+      <div class="gl"><div class="abbr">H-JEPA</div><div class="full">Hierarchical JEPA<span class="cn"> · 分层联合嵌入预测架构（支持分层规划）</span></div></div>
+      <div class="gl"><div class="abbr">VICReg</div><div class="full">Variance-Invariance-Covariance Regularization<span class="cn"> · 防表征坍缩的非对比自监督方法</span></div></div>
+    </div>
+  </section>
+
+  <div class="endcap">
+    <p style="font-family:var(--mono);letter-spacing:1px;">END · 延伸专题库 · 14 个主题</p>
+    <p>视频内容为转述提炼　·　绿标为已验证可嵌入视频，蓝标为检索入口　·　把你想要的具体视频链接发我即可换成内嵌</p>
+    <p style="margin-top:10px;"><a href="index.html">← 返回 S31 主页</a>　·　<a href="lecun-jepa.html">JEPA 讲座专题 →</a></p>
+  </div>
+
+</div>
+
+<button class="backtop" id="backtop" aria-label="回到顶部">↑</button>
+
+<script>
+  // click-to-load YouTube (lite embed) — keeps page light, loads player only on click
+  document.querySelectorAll('.lite[data-yt]').forEach(function(box){
+    box.addEventListener('click', function(){
+      var id = box.getAttribute('data-yt');
+      if(!id || box.querySelector('iframe')) return;
+      var f = document.createElement('iframe');
+      f.setAttribute('src', 'https://www.youtube.com/embed/' + id + '?autoplay=1&rel=0');
+      f.setAttribute('title', 'YouTube video');
+      f.setAttribute('loading', 'lazy');
+      f.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+      f.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+      f.setAttribute('allowfullscreen', '');
+      box.innerHTML = '';
+      box.appendChild(f);
+    });
+  });
+
+  var bar = document.getElementById('progress');
+  var backtop = document.getElementById('backtop');
+  function onScroll(){
+    var h = document.documentElement;
+    var scrolled = h.scrollTop;
+    var max = h.scrollHeight - h.clientHeight;
+    bar.style.width = (max > 0 ? (scrolled / max) * 100 : 0) + '%';
+    if(scrolled > 600){ backtop.classList.add('show'); } else { backtop.classList.remove('show'); }
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+  backtop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+  var navlinks = Array.prototype.slice.call(document.querySelectorAll('.navlinks a'));
+  function highlight(){
+    var pos = window.scrollY + 120;
+    var current = sections.length ? sections[0].id : null;
+    sections.forEach(function(s){ if(s.offsetTop <= pos){ current = s.id; } });
+    navlinks.forEach(function(a){
+      var on = a.getAttribute('href') === '#' + current;
+      a.style.color = on ? 'var(--accent)' : 'var(--muted)';
+      a.style.fontWeight = on ? '700' : '400';
+    });
+  }
+  window.addEventListener('scroll', highlight, {passive:true});
+  highlight();
+</script>
+</body>
+</html>
