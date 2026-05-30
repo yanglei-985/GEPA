@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>S31 对话深度解读 · 让你彻底读懂这篇笔记</title>
+<meta name="description" content="把 S31《对话深编·宝玉风格》逐点拆解、纠错、深挖，并配权威资料与 YouTube 检索入口。" />
+<style>
+  :root{
+    --bg:#fbfaf7; --panel:#f7f3ed; --accent:#c43b2f; --ink:#2b2b28;
+    --ink2:#3f3d38; --muted:#77736b; --line:rgba(120,112,100,.20);
+    --teal:#0b6f8f; --green:#2f8f5b; --amber:#b9791b; --purple:#6b4fa0;
+    --serif:'Noto Serif SC','Source Han Serif SC','Songti SC',STSong,Georgia,serif;
+    --sans:'Noto Sans SC','PingFang SC','Microsoft YaHei',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --mono:'JetBrains Mono','SF Mono',Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--ink2);font-family:var(--sans);line-height:1.9;-webkit-font-smoothing:antialiased;}
+  a{color:var(--teal);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  code{font-family:var(--mono);font-size:.86em;color:var(--teal);background:rgba(196,59,47,.08);padding:2px 6px;border-radius:4px;word-break:break-word;}
+
+  /* progress bar */
+  #progress{position:fixed;top:0;left:0;height:3px;width:0;background:var(--accent);z-index:60;transition:width .1s linear;}
+
+  /* top nav */
+  .topbar{position:sticky;top:0;z-index:50;background:rgba(251,250,247,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);}
+  .topbar-inner{max-width:1060px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:12px;}
+  .brand{font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;white-space:nowrap;}
+  .navlinks{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12.5px;}
+  .navlinks a{color:var(--muted);padding:2px 4px;border-radius:4px;}
+  .navlinks a:hover{color:var(--accent);text-decoration:none;background:rgba(196,59,47,.07);}
+  .toggle-all{margin-left:auto;font-family:var(--mono);font-size:11.5px;color:var(--muted);border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 12px;cursor:pointer;white-space:nowrap;}
+  .toggle-all:hover{color:var(--accent);border-color:var(--accent);}
+
+  /* layout */
+  .wrap{max-width:760px;margin:0 auto;padding:0 18px 80px;}
+  .hero{padding:46px 0 26px;border-bottom:1px solid var(--line);}
+  .kicker{margin:0 0 12px;color:var(--accent);font-size:12px;letter-spacing:3px;text-transform:uppercase;font-family:var(--mono);}
+  h1{margin:0 0 16px;color:var(--ink);font-size:32px;line-height:1.25;font-weight:800;font-family:var(--serif);letter-spacing:.3px;}
+  .sub{margin:0;color:var(--muted);font-size:14px;}
+  .lead{margin:18px 0 0;color:var(--ink2);font-size:15.5px;line-height:1.95;text-align:justify;}
+
+  h2{margin:0;color:var(--ink);font-size:25px;line-height:1.35;font-weight:700;font-family:var(--serif);}
+  h2 .bar{display:inline-block;padding-left:12px;border-left:4px solid var(--accent);}
+  h3{margin:30px 0 14px;color:var(--ink);font-size:19px;line-height:1.45;font-weight:700;font-family:var(--serif);}
+  h3 .pin{color:var(--accent);font-family:var(--mono);font-size:14px;margin-right:8px;}
+  .theme-head{margin:54px 0 18px;padding-top:14px;}
+  .theme-head .kicker{margin-bottom:8px;}
+  p{margin:0 0 16px;font-size:15.5px;line-height:1.95;text-align:justify;word-break:break-word;}
+  strong{color:var(--ink);font-weight:700;}
+
+  .note-box{margin:20px 0 24px;padding:18px;background:var(--panel);border:1px solid var(--line);border-radius:16px;}
+  .note-box .t{margin:0 0 6px;color:var(--ink);font-size:16px;font-weight:700;}
+  .note-box p:last-child{margin-bottom:0;}
+
+  .quote{margin:18px 0;padding:16px 18px;background:#fff;border-left:4px solid var(--accent);border-radius:0 10px 10px 0;box-shadow:0 8px 24px rgba(0,0,0,.035);}
+  .quote p{margin:0 0 10px;color:#5d5952;font-size:14px;line-height:1.9;font-family:Georgia,var(--sans);}
+  .quote p:last-child{margin-bottom:0;}
+  .quote .who{color:var(--ink);font-weight:700;}
+
+  .bullets{margin:12px 0 20px;padding:0;}
+  .bullets .b{margin:0 0 8px;font-size:15px;line-height:1.75;padding-left:22px;position:relative;}
+  .bullets .b::before{content:"";position:absolute;left:2px;top:9px;width:6px;height:6px;background:var(--accent);border-radius:50%;}
+
+  /* original-gist tag */
+  .gist{margin:14px 0 6px;font-family:var(--mono);font-size:11.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+
+  /* deep-dive collapsible */
+  details.dd{margin:14px 0;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 8px 26px rgba(0,0,0,.03);}
+  details.dd>summary{list-style:none;cursor:pointer;padding:15px 18px;display:flex;align-items:flex-start;gap:10px;font-weight:700;color:var(--ink);font-size:15.5px;line-height:1.55;}
+  details.dd>summary::-webkit-details-marker{display:none;}
+  details.dd>summary .arw{color:var(--accent);font-family:var(--mono);font-size:13px;transition:transform .2s;margin-top:2px;}
+  details.dd[open]>summary .arw{transform:rotate(90deg);}
+  details.dd>summary .lbl{flex:1;}
+  details.dd>summary .chip{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.5px;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:2px 8px;white-space:nowrap;}
+  .dd-body{padding:2px 18px 16px;border-top:1px solid var(--line);}
+
+  /* four-layer rows */
+  .layer{margin:14px 0 0;padding-left:14px;border-left:2px solid var(--line);}
+  .layer .tag{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.5px;padding:1px 8px;border-radius:5px;margin-bottom:4px;}
+  .tag.origin{color:var(--teal);background:rgba(11,111,143,.10);}
+  .tag.analogy{color:var(--amber);background:rgba(185,121,27,.12);}
+  .tag.howto{color:var(--green);background:rgba(47,143,91,.12);}
+  .tag.risk{color:var(--accent);background:rgba(196,59,47,.10);}
+  .layer p{margin:2px 0 0;font-size:14.3px;line-height:1.85;}
+
+  /* resource / video cards */
+  .cards{display:grid;grid-template-columns:1fr;gap:10px;margin:16px 0 6px;}
+  .rc{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;background:#fff;border:1px solid var(--line);border-radius:12px;transition:border-color .15s,transform .15s;}
+  .rc:hover{border-color:var(--accent);transform:translateY(-1px);text-decoration:none;}
+  .rc .ic{flex:none;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;}
+  .rc.yt .ic{background:#ffe9e7;color:var(--accent);}
+  .rc.doc .ic{background:#e7f0f4;color:var(--teal);}
+  .rc .tx{min-width:0;}
+  .rc .tt{display:block;color:var(--ink);font-weight:700;font-size:14px;line-height:1.4;}
+  .rc .ds{display:block;color:var(--muted);font-size:12px;margin-top:2px;word-break:break-word;}
+
+  /* correction banner */
+  .correction{margin:22px 0;padding:20px;background:#fff4ef;border:1px solid rgba(196,59,47,.30);border-left:5px solid var(--accent);border-radius:14px;}
+  .correction .h{margin:0 0 8px;color:var(--accent);font-weight:800;font-size:16px;font-family:var(--serif);}
+  .vs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0 0;}
+  .vs .col{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;}
+  .vs .col h4{margin:0 0 6px;font-size:14.5px;color:var(--ink);font-family:var(--serif);}
+  .vs .col .who{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.5px;}
+  .vs .col p{font-size:13.3px;line-height:1.8;margin:6px 0 0;}
+
+  /* misc */
+  .flow{font-family:var(--mono);font-size:12.5px;color:var(--teal);background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:14px 0;line-height:2;word-break:break-word;}
+  .divider{height:1px;background:var(--line);margin:30px 0;border:0;}
+  .endcap{margin:50px 0 0;padding:24px 0 0;border-top:1px solid var(--line);text-align:center;}
+  .endcap p{color:var(--muted);font-size:12.5px;text-align:center;}
+  .backtop{position:fixed;right:18px;bottom:18px;z-index:40;width:42px;height:42px;border-radius:50%;background:var(--accent);color:#fff;border:0;cursor:pointer;font-size:18px;box-shadow:0 8px 20px rgba(196,59,47,.35);opacity:0;pointer-events:none;transition:opacity .2s;}
+  .backtop.show{opacity:1;pointer-events:auto;}
+  .disclaimer{font-size:12px;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:12px 14px;margin:16px 0;}
+
+  @media (max-width:560px){
+    h1{font-size:26px;} h2{font-size:21px;}
+    .vs{grid-template-columns:1fr;}
+    .navlinks{display:none;}
+    .topbar-inner{justify-content:space-between;}
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">S31 · 深度解读</span>
+    <nav class="navlinks">
+      <a href="#intro">引言</a>
+      <a href="#fix">GEPA≠JEPA</a>
+      <a href="#t1">01灵感</a>
+      <a href="#t2">02单词卡</a>
+      <a href="#t3">03架构转向</a>
+      <a href="#t4">04组合拳</a>
+      <a href="#t5">05空度</a>
+      <a href="#t6">06落地法</a>
+      <a href="#t7">07技术通道</a>
+      <a href="#t8">08蒸馏</a>
+      <a href="#t9">09结论</a>
+      <a href="#next">下一步</a>
+      <a href="#res">资料库</a>
+    </nav>
+    <button class="toggle-all" id="toggleAll">展开全部 ▾</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="hero" id="top">
+    <p class="kicker">Deep-Dive · S31 Internal Notes</p>
+    <h1>S31 对话深度解读<br/>把这篇笔记的每个点都讲透</h1>
+    <p class="sub">原文：S31-对话深编-宝玉风格.md　·　本页：逐点拆解 + 概念正本清源 + 纠错 + 权威资料 + YouTube 检索入口</p>
+    <p class="lead">原文是一份按主题重组的内部讨论稿，信息密度很高，但很多概念是<strong>口头直觉的速记</strong>，名词彼此叠在一起。这一页不改动原文的判断，而是替你做三件事：<strong>① 把每个细节点单独拎出来讲深</strong>（每点按"正本清源 → 类比 → 怎么落地 → 风险边界"四层展开）；<strong>② 纠正一处会影响全局理解的概念混淆（GEPA / JEPA）</strong>；<strong>③ 给每个概念配一条可点的权威资料和一个 YouTube 检索入口</strong>，方便你边读边看视频。</p>
+    <div class="disclaimer">说明：为保证链接长期有效，视频统一用 <code>YouTube 检索入口</code>（点开即是该主题的相关视频列表），不写死单条视频地址；文章/论文为检索当时可访问的真实来源。涉及外部内容均已改写转述，未逐字摘录。</div>
+  </header>
+
+  <!-- ===================== INTRO ===================== -->
+  <section id="intro">
+    <div class="theme-head" style="margin-top:34px;">
+      <p class="kicker">read me first</p>
+      <h2><span class="bar">先校准三件事，后面才不会越读越乱</span></h2>
+    </div>
+
+    <p>原文开头交代了它的性质：<strong>内部讨论底稿</strong>，目的是保存思路链条、概念关系、操作范式和落地方向，不是对外发布稿。处理原则是"尽量不省细节 + 保持宝玉风格版式"。这意味着：里面的措辞是讲话者当时的理解，<strong>不一定等于业界标准定义</strong>。所以读这篇笔记，最好的姿势是"先理解他们想表达什么，再对齐标准概念"。</p>
+
+    <div class="note-box">
+      <p class="t">校准 1 ｜ "杨丽坤 / 杨立坤" = Yann LeCun</p>
+      <p style="margin:0;font-size:13.8px;line-height:1.85;color:#55514a;">原文已注明这是传输噪音，实际指的是 <strong>Yann LeCun（杨立昆）</strong>——Meta 首席 AI 科学家、卷积神经网络与"世界模型"路线的旗手。记住这个名字，因为它和下面 theme 03 的最大一处纠错直接相关。</p>
+    </div>
+
+    <div class="note-box">
+      <p class="t">校准 2 ｜ 这页的"四层展开"怎么读</p>
+      <p style="margin:0 0 6px;font-size:13.8px;line-height:1.85;color:#55514a;">几乎每个细节点，我都折叠成一张可展开卡片，点开后有四个标签：</p>
+      <p style="margin:0;font-size:13.3px;line-height:1.9;color:#55514a;">
+        <span class="tag origin">正本清源</span> 这个词/说法到底标准含义是什么、出处在哪　
+        <span class="tag analogy">类比</span> 用一个生活化比喻帮你记住　
+        <span class="tag howto">怎么落地</span> 具体能怎么用　
+        <span class="tag risk">风险边界</span> 哪里容易翻车、原文哪里说得过头了
+      </p>
+    </div>
+
+    <div class="note-box">
+      <p class="t">校准 3 ｜ 两条主线，别混为一谈</p>
+      <p style="margin:0;font-size:13.8px;line-height:1.85;color:#55514a;">全篇其实在并轨推进两件事：<strong>（A）面向用户的"单词卡游戏化"</strong>——前端粘性与学习反馈；<strong>（B）面向后台的"知识编译系统"</strong>——把原料加工成可复用资产并约束 AI。中间穿插 BNY 教的<strong>（C）落地方法论</strong>。读的时候时刻问自己："这一段在讲 A、B 还是 C？"</p>
+    </div>
+  </section>
+
+  <!-- ===================== GEPA vs JEPA CORRECTION ===================== -->
+  <section id="fix">
+    <div class="theme-head">
+      <p class="kicker">key correction</p>
+      <h2><span class="bar">最重要的一处纠错：GEPA 不是 JEPA</span></h2>
+    </div>
+
+    <p>原文 theme 03 里，把"传统 LLM 靠<strong>猜下一个词</strong>、容易被噪声拖住；新路线<strong>抓抽象语义向量、抓因果结构、忽略像素级噪声</strong>"这套说法，安在了 <code>GEPA</code> 头上，还提到了 Yann LeCun。我核对后可以明确告诉你：<strong>那段描述的内核其实是 JEPA，不是 GEPA。</strong>这两个名字读音像、又都在 AI 圈，很容易在一段视频里听串。</p>
+
+    <div class="correction">
+      <p class="h">⚠ 一句话分清</p>
+      <p style="margin:0;font-size:14px;line-height:1.85;color:#5d5952;">"<strong>不预测像素、在表征空间里抓本质、忽略不可预测的噪声</strong>" → 这是 <strong>JEPA</strong>（Yann LeCun 的世界模型架构）。"<strong>让 AI 反思自己的运行记录、自动进化出更好的提示词</strong>" → 这才是 <strong>GEPA</strong>（DSPy 的提示词优化器）。原文把 JEPA 的"思想"贴到了 GEPA 的"名字"上。</p>
+
+      <div class="vs">
+        <div class="col">
+          <span class="who">YANN LECUN · 2022起</span>
+          <h4>JEPA</h4>
+          <p style="color:var(--muted);font-size:11.5px;font-family:var(--mono);margin-top:0;">Joint-Embedding Predictive Architecture</p>
+          <p>一种<strong>世界模型</strong>架构。不去逐像素/逐字重建世界，而是在<strong>抽象表征空间</strong>里预测"接下来大概是什么语义状态"，主动丢弃不可预测的细节噪声。正是原文"抓本质、忽略噪声"那段的真正出处。代表人物 Yann LeCun（即原文的"杨立坤"）。</p>
+        </div>
+        <div class="col">
+          <span class="who">DSPY / AGRAWAL 等 · 2025</span>
+          <h4>GEPA</h4>
+          <p style="color:var(--muted);font-size:11.5px;font-family:var(--mono);margin-top:0;">Genetic-Pareto Reflective Prompt Evolution</p>
+          <p>一种<strong>提示词优化器</strong>。让模型对自己的运行轨迹做<strong>自然语言反思</strong>，诊断哪里不对、提出新提示词、在"帕累托前沿"上保留多条优解再重组。论文称比强化学习(GRPO)用更少的尝试就能更好。和原文那套"反思→反馈→回流"的组合拳，其实更对得上的是它。</p>
+        </div>
+      </div>
+
+      <p style="margin:14px 0 0;font-size:13.5px;line-height:1.8;color:#5d5952;"><strong>为什么这处纠错值钱：</strong>如果不分清，你会以为"GEPA = 一种不预测 token 的新模型"，从而把后面 theme 04 里"GEPA 处理血肉"也理解错。实际上在你们的系统语境里，<strong>能落地的是 GEPA 式的"反思优化"思路</strong>（对提示词/流程做反思迭代），而 JEPA 是一种前沿模型架构、暂时不是你们能直接接进工作流的东西。下面 theme 03 会按"两个都讲对"的方式重新展开。</p>
+    </div>
+
+    <div class="cards">
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=Yann+LeCun+JEPA+world+model+explained" target="_blank" rel="noopener">
+        <span class="ic">▶</span><span class="tx"><span class="tt">YouTube：Yann LeCun JEPA / world model 讲解</span><span class="ds">看 LeCun 本人讲"为什么 next-token prediction 不够、世界模型在表征空间预测"</span></span>
+      </a>
+      <a class="rc doc" href="https://arxiv.org/abs/2403.00504" target="_blank" rel="noopener">
+        <span class="ic">¶</span><span class="tx"><span class="tt">论文：Learning and Leveraging World Models（JEPA）</span><span class="ds">arxiv.org/abs/2403.00504 · JEPA 作为自监督世界模型的代表工作</span></span>
+      </a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=GEPA+DSPy+reflective+prompt+optimization" target="_blank" rel="noopener">
+        <span class="ic">▶</span><span class="tx"><span class="tt">YouTube：GEPA / DSPy 反思式提示词优化</span><span class="ds">看 GEPA 如何用自然语言反思迭代提示词、对比强化学习</span></span>
+      </a>
+      <a class="rc doc" href="https://arxiv.org/abs/2507.19457" target="_blank" rel="noopener">
+        <span class="ic">¶</span><span class="tx"><span class="tt">论文：GEPA: Reflective Prompt Evolution（Agrawal et al., 2025）</span><span class="ds">arxiv.org/abs/2507.19457 · 另见 dspy.ai 的 GEPA 优化器文档</span></span>
+      </a>
+    </div>
+  </section>
+
+
+  <!-- ===================== THEME 01 ===================== -->
+  <section id="t1">
+    <div class="theme-head">
+      <p class="kicker">theme 01</p>
+      <h2><span class="bar">灵感不是等来的，是高压后留白逼出来的</span></h2>
+    </div>
+
+    <p>这是全篇的开场，也是最"反直觉"的一条。讲话者（Silence）给出的不是鸡汤，而是一条<strong>可操作的灵感诱发流程</strong>：连续 <code>10–15 天</code>高强度创作，把密度拉满；然后<strong>故意放松</strong>，去做最解压的事；再睡个懒觉、起床节奏放慢——当晚的灵感密度会显著升高。他的解释是：大脑平时被逼到 <code>120%</code> 高转速、长期反人性运转，一旦满足它对"轻松、偷懒、留白"的需求，潜意识里的"星链"就会浮上来。他还专门区分了两个词：<strong>认知 = 正向思考</strong>，<strong>灵感 = 潜意识在特定时刻的浮现</strong>。</p>
+
+    <div class="quote">
+      <p><span class="who">Silence：</span>"灵感不是你主动搜索，是被动需求。平时那种正向思考不叫灵感，那叫认知。灵感是潜意识里面的某种东西，前面高负荷拉满，后面突然放松，它就会往上反。"</p>
+      <p><span class="who">BNY 搭：</span>"休息够了，然后大脑就会有空闲再去思考这些东西。"</p>
+    </div>
+
+    <p class="gist">把这条直觉，对齐到已有的认知科学</p>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">"高压后留白逼出灵感" = 心理学里的"孵化效应 / 发散模式"</span><span class="chip">核心机制</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>这套说法不是玄学，它对应两个成熟概念：<strong>孵化效应（Incubation Effect）</strong>——专注一阵后离开问题去休息，回来时解题表现反而更好；以及 Barbara Oakley 普及的<strong>专注模式 / 发散模式（focused vs. diffuse mode）</strong>——大脑放松时进入"发散"，让平时连不起来的远距离念头互相搭线。神经层面常被归因于<strong>默认模式网络（Default Mode Network）</strong>在休息时的活跃。讲话者说的"潜意识星链浮上来"，几乎就是 DMN 在做远距离联想。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>像泡茶：高强度投入是"把茶叶和滚水闷进壶里"，休息留白是"盖上盖子等它出味"。你盯着壶不会更快出味，离开一会儿回来，味道反而到位了。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>把它做成节律而不是碰运气：① 先有一段"真投入"（资料、草稿、试错都堆够，潜意识才有原料）；② 安排<strong>低认知负荷</strong>的放松（散步、洗澡、做饭、睡觉——别用刷短视频，那是高刺激不是留白）；③ 随手放个备忘录/录音，因为灵感浮现转瞬即逝；④ 把"睡前/醒后"当作专门的捕捉窗口。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>顺序不能反：<strong>没有前面的高压投入，后面的放松只是放空</strong>，不会"反"出东西。另外"10–15 天 120%"是个人经验值，不是普适剂量——长期 120% 容易直接烧成倦怠（burnout），孵化的前提是"够累但没垮"。把它当节奏参考，别当 KPI。</p>
+        </div>
+      </div>
+    </details>
+
+    <div class="cards">
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=focused+vs+diffuse+mode+learning+how+to+learn" target="_blank" rel="noopener">
+        <span class="ic">▶</span><span class="tx"><span class="tt">YouTube：focused vs diffuse mode（专注/发散模式）</span><span class="ds">配合 Barbara Oakley《Learning How to Learn》理解休息为何催生洞见</span></span>
+      </a>
+      <a class="rc doc" href="https://fs.blog/spacing-effect/" target="_blank" rel="noopener">
+        <span class="ic">¶</span><span class="tx"><span class="tt">文章：孵化与休息如何帮助记忆与洞见</span><span class="ds">fs.blog · 关于休息、间隔与大脑后台处理的科普整理</span></span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===================== THEME 02 ===================== -->
+  <section id="t2">
+    <div class="theme-head">
+      <p class="kicker">theme 02</p>
+      <h2><span class="bar">单词卡不是配图，是一整套游戏化粘性系统</span></h2>
+    </div>
+
+    <p>第二条主线，是从一张 <code>separate</code> 的生成图，一路推到完整的单词卡玩法。起点是用 Gemini 生图得到的"黑金版"卡片质感——讲话者发现这种卡<strong>不只是把词根、词缀、词义、造句排上去</strong>，而是自带战斗感、游戏感、画面张力。于是他往前再推一层：卡片既然能做得这么精致，就不该只是学习材料，而应该是一套带<strong>收集、交换、稀有度、反馈回路</strong>的系统。下面把这一坨想法拆成几个可独立成立的设计点。</p>
+
+    <p class="gist">逐个拆开：这套玩法借了哪些成熟机制</p>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">稀有度等级（黑金 / 黄金 / 白银 / 青铜 / SSR 隐藏款）</span><span class="chip">收集驱动</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>卡面等级本质是"<strong>稀有度系统（rarity tiers）</strong>"，外加抽卡的"<strong>SSR / 隐藏款</strong>"概念，源自日式手游的 gacha 与集换式卡牌（TCG）。它把"内容载体"同时变成"<strong>身份与成就符号</strong>"——同一个词，普通卡和 SSR 卡带来的心理价值完全不同。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>就像球星卡：同一个球员，普卡随处可见，签名限量卡能炒到天价。卡上的"知识"没变，变的是稀缺性赋予的情绪价值。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>给每张词卡定义 <code>rarity</code> 字段；稀有度可与"<strong>学习里程碑</strong>"挂钩（连续复习 N 天解锁黄金版同款词），让稀有不是纯靠运气，而是努力的可视化勋章。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>稀有度若只靠付费/运气，容易滑向"赌博式抽卡"的争议（见下一张卡）；用于<strong>儿童/学生教育产品</strong>时尤其敏感，最好把稀有度绑定"学习行为"而非"花钱"。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">盲盒 / 抽卡 / 二级市场交换 / 集齐兑换礼物</span><span class="chip">反馈回路</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>这背后是行为心理学的<strong>变比强化（variable-ratio reinforcement）</strong>——奖励在"不确定次数后"才出现，由 B.F. Skinner 提出，是老虎机、抽卡最"上头"的底层机制。"集齐兑换""二级市场交换"则借用了<strong>收藏完形心理</strong>与<strong>社交流通价值</strong>。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>小时候集水浒卡/小浣熊卡：差一张就集齐时那种抓心挠肝，正是变比强化 + 完形缺口在起作用。你不是为了卡，是为了"补上那个缺口"。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>设计"<strong>抽 → 收集 → 交换 → 集齐兑换</strong>"闭环，但每个环节都挂一个学习动作（见下一张卡）。交换功能能制造社交与同伴压力，是低成本的留存放大器。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>变比强化是把双刃剑：它能提升黏性，也最接近成瘾/赌博机制，多国对"loot box"已有监管。教育场景要<strong>克制使用付费抽卡</strong>，把"不确定奖励"限定在学习成果反馈上，别让孩子为开卡花钱。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">抽卡后必须接"指令/作业"——收集要触发学习动作</span><span class="chip">最关键设计</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>这是整套玩法里<strong>最专业的一笔</strong>。它在防"<strong>game-reward 与 learning-goal 脱钩</strong>"：游戏化设计最常见的失败就是奖励变成目的本身，玩家只追收集、不学东西。要求"抽完接指令"，等于把奖励重新焊回学习行为。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>像健身房的"称重解锁拍照"——你想晒成果（卡），就得先完成训练（指令）。奖励永远卡在动作之后。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>抽到一张词卡，立刻弹出该词的微任务：造句 / 听写 / 用它接龙 / 限时回忆释义。把它和下面"间隔重复"结合：抽到的卡自动进入复习队列。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>指令别太重，否则抽卡的"爽"被任务的"累"抵消，回路断掉。强度要随稀有度/熟练度自适应，新词轻任务、熟词可挑战。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">参照物：小浣熊 / 水浒卡 / 泡泡玛特 / 百事集卡；三国冷门人物为何记得住</span><span class="chip">记忆原理</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>讲话者点破了本质："这些东西不是<strong>内容多</strong>，而是<strong>记忆钉扎得深</strong>。"翻成认知科学就是：<strong>精细编码（elaborative encoding）+ 图像/情绪双通道 + 间隔重复</strong>。三国冷门人物今天还记得，不是人物重要，而是当年卡片把"形象 + 故事 + 反复翻看"一起钉进了记忆。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>像记忆宫殿：抽象信息挂到一个鲜明画面上就忘不掉。"separate = 一个人被劈成两半"，比背"separate, 分开"牢得多。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>每张卡追求"<strong>一图一钉</strong>"：让画面动作和词义高度重合（见下一张"语义动作剧场"）；再用<strong>间隔重复（Anki 式 SRS）</strong>排程复习，把"钉深"和"钉牢"分别交给图像和算法。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>图像太花会"喧宾夺主"——记住了画面却记不住词。检验标准始终是：看到画面能否秒回词义，而不是画面好不好看。</p>
+        </div>
+      </div>
+    </details>
+
+    <p class="gist">原文里的三处"对话细部"，逐条点透</p>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">细部 1：separate 的画面感 = "语义动作剧场"</span><span class="chip">不是配图</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>左手右手把东西分开、人物被劈成两半——词义和图像动作高度重合。这已经不是"单词配图"，而是把词义<strong>演出来</strong>。学术上接近"<strong>具身/动作记忆</strong>"：动作和画面参与编码，记得更久。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>给词卡定一条铁律：图必须"演"出词义的核心动作，而不是贴一张氛围插画。动词尤其适合，名词可演其典型场景。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>抽象词（如 abstract、justice）难"演"，硬演会牵强；这类词更适合用类比场景或反义对照，而非字面动作。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">细部 2：图像只是入口，目标是"自发回流的学习回路"</span><span class="chip">系统而非招数</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>讲话者要的不是"好看卡片"，而是让学生进入一个<strong>能自己转起来的循环</strong>：收集 → 交换 → 稀有度 → 奖品反馈 → 任务触发 → 再收集。这正是产品里说的"<strong>留存飞轮 / engagement loop</strong>"。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>画一张闭环图，标出每个环节的"<strong>触发—动作—奖励—再投资</strong>"（Nir Eyal 的 Hooked 上瘾模型）。任何一环断了，飞轮就停。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>飞轮的"再投资"环最易被忽略——奖励之后要顺势把用户推回下一次学习，否则只是一次性爽感。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">细部 3：附加值 = 中医针灸，客户锚点 = 穴位，最终服务 LTV</span><span class="chip">商业底层</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p><code>LTV</code>（Lifetime Value，客户终身价值）= 一个客户在整个关系周期里贡献的总价值。讲话者把"附加值"比作针灸、"客户锚点"比作穴位：不是一次性招数，而是<strong>在多个关键点持续扎针</strong>，把短期学习产品变成长期关系。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>穴位不是越多越好，是"扎对点"。每个锚点（成就感、社交、收藏、进步可视化）都是一个能反复发力的穴位。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>把单词卡的每个粘性点标成"穴位"，对应到 LTV 的不同阶段：拉新用稀有度，激活用任务，留存用集齐与社交，复购/口碑用成长可视化。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>LTV 思维若压过学习效果，会变成"为留存而留存"。教育产品的 LTV 锚点，最终必须落在"用户真的学会了"，否则口碑反噬。</p>
+        </div>
+      </div>
+    </details>
+
+    <div class="cards">
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=gacha+variable+ratio+reinforcement+game+psychology" target="_blank" rel="noopener">
+        <span class="ic">▶</span><span class="tx"><span class="tt">YouTube：抽卡/变比强化的游戏心理学</span><span class="ds">理解盲盒、SSR 为何让人停不下来（Skinner 变比强化）</span></span>
+      </a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=spaced+repetition+Anki+how+it+works" target="_blank" rel="noopener">
+        <span class="ic">▶</span><span class="tx"><span class="tt">YouTube：间隔重复 / Anki 原理</span><span class="ds">把"记忆钉牢"交给算法：遗忘曲线 + 间隔复习</span></span>
+      </a>
+      <a class="rc doc" href="https://ncase.me/remember/" target="_blank" rel="noopener">
+        <span class="ic">¶</span><span class="tx"><span class="tt">互动科普：How To Remember Anything（间隔重复可玩演示）</span><span class="ds">ncase.me/remember · 拖动就能看懂遗忘曲线与复习节奏</span></span>
+      </a>
+    </div>
+  </section>
+
+
+  <!-- ===================== THEME 03 ===================== -->
+  <section id="t3">
+    <div class="theme-head">
+      <p class="kicker">theme 03</p>
+      <h2><span class="bar">从 GEPA 到知识编译系统：真正兴奋的是"架构转向"</span></h2>
+    </div>
+
+    <p>这一节是全篇的中轴。讲话者意识到：自己摸到的不是"再多学几个 LLM 使用技巧"，而是一种<strong>更底层的东西——架构层面的转向</strong>。他被一个视频刺激后形成了直觉："传统 LLM 靠猜下一个词处理世界、容易被海量噪声拖住；而新路线不抓所有像素级细节，而是抓抽象语义、抓因果、抓真正重要的东西。"他自己的总结很传神：<strong>LLM 像"眉毛胡子一把抓"，新路线像"先抓本质，再忽略噪声"。</strong></p>
+
+    <div class="quote">
+      <p style="font-style:italic;">"LLM 更像眉毛胡子一把抓，GEPA 更像先抓本质、再忽略不重要的噪声。"——这个判断后来直接进入了他对整个系统架构的再设计。</p>
+    </div>
+
+    <div class="correction">
+      <p class="h">↑ 提醒：这段"抓本质忽略噪声"其实是 JEPA 的思想（详见上面纠错区）</p>
+      <p style="margin:0;font-size:13.5px;line-height:1.8;color:#5d5952;">所以下面我把它<strong>拆成两条线分别讲对</strong>：（一）作为"灵感来源"的架构哲学——其实是 JEPA / 世界模型；（二）作为"能落地进你们系统"的方法——是 GEPA 式的反思优化。两者都很重要，但角色不同。</p>
+    </div>
+
+    <p class="gist">把这节的每个点讲对</p>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">"猜下一个词 vs 抓本质" —— 这其实是 LLM 与世界模型(JEPA)之争</span><span class="chip">架构哲学</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>"猜下一个词"= LLM 的 <strong>next-token prediction</strong>：在原始符号空间逐字预测，任何一步的小错都会被喂回去、滚雪球。Yann LeCun 多次主张这条路通向人类级智能是"死胡同"，提出 <strong>JEPA</strong>：在<strong>抽象表征空间</strong>里预测，主动放弃不可预测的细节（像素级噪声）。原文那句"抓语义向量、抓因果、忽略噪声"，说的就是这个。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>看球赛复盘：LLM 像"逐帧背下每个像素"，JEPA 像教练"只记住战术意图和关键跑位"。教练不在乎草皮上每根草怎么动。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>你<strong>没法直接把 JEPA 接进工作流</strong>（它是模型研究方向），但能借它的<strong>思维方式</strong>：在你的知识系统里，先抽"语义骨架/因果关系"，再决定哪些原始细节值得保留——这正是后面 K-IR 中间层要干的事。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>别被"LLM 是死胡同"带偏：这是一派观点，不是定论，业界仍在激烈争论。对你们而言，重点是借鉴"抓本质、弃噪声"的过滤思路，而不是站队。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">原文记下的 "GEPA 流程"：Raw → Representation → Target → Prediction → Action → Feedback</span><span class="chip">流程骨架</span></summary>
+      <div class="dd-body">
+        <div class="flow">Raw → Representation → Target → Prediction → Action → Feedback</div>
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>这串流程<strong>不是 GEPA 论文里的标准术语</strong>，更像讲话者把"感知→表征→目标→预测→行动→反馈"的<strong>通用智能体/世界模型回路</strong>自己复述了一遍（带 JEPA 味道）。真正的 GEPA 是"采样轨迹 → 自然语言反思 → 提出新提示词 → 评测 → 在帕累托前沿合并优解"。但讲话者用这串流程做<strong>系统骨架草图</strong>是完全合理的——它抓住了"原料进、表征化、产出动作、再回流"的精神。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>像工厂流水线：原料(Raw) → 半成品规格(Representation) → 目标件(Target) → 试制(Prediction) → 出货(Action) → 质检回单(Feedback) 再改进。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>把它当作你系统的"主干道"：每条素材都要能说清自己走到了哪一站。这与 theme 05 的 <strong>FSM 状态机</strong>（raw → ir → wiki → output → archived）是同一件事的两种画法。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>因为这不是官方定义，<strong>对外沟通时别说"这是 GEPA 的流程"</strong>，会被懂行的人指出来。说成"我们借鉴反思-反馈回路设计的主干"更稳。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">"城中区"实验策略：先小范围试运行，看兼容性，再渗透</span><span class="chip">推进节奏</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>"不整套硬搬，先拿一小块试"——这是标准的<strong>试点 / 灰度发布（pilot / canary rollout）+ strangler fig（绞杀者）迁移</strong>思路：在旧系统旁边先跑一小块新架构，验证可行再逐步替换，而不是推倒重来。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>像旧城改造先建一个"示范街区"，跑通水电交通再向全城推广，而不是一夜之间拆掉全城。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>选<strong>一类低风险素材</strong>（比如这次的 S31 对话稿）作为城中区，完整跑一遍 Raw→K-IR→Wiki→Output→Feedback，记录哪里卡住、哪里损耗，再决定推广。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>试点最怕"永远在试点"。要预设<strong>毕业标准</strong>（满足哪些指标就推广），否则城中区会变成长期烂尾。</p>
+        </div>
+      </div>
+    </details>
+
+    <div class="cards">
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=why+LLMs+next+token+prediction+limitation+world+model" target="_blank" rel="noopener">
+        <span class="ic">▶</span><span class="tx"><span class="tt">YouTube：为什么"猜下一个词"不够 / 世界模型</span><span class="ds">理解 next-token prediction 的局限与 JEPA 的动机</span></span>
+      </a>
+      <a class="rc doc" href="https://dspy.ai/api/optimizers/GEPA/overview/" target="_blank" rel="noopener">
+        <span class="ic">¶</span><span class="tx"><span class="tt">文档：DSPy 官方 GEPA Optimizer 说明</span><span class="ds">dspy.ai · 看 GEPA 真实的反思-进化机制（与原文流程对照）</span></span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===================== THEME 04 ===================== -->
+  <section id="t4">
+    <div class="theme-head">
+      <p class="kicker">theme 04</p>
+      <h2><span class="bar">组合拳：Harness、Schema、PARA、K-IR、YAML 各管一段</span></h2>
+    </div>
+
+    <p>这里讲话者把整套打法称作"<strong>一套组合拳</strong>"。关键不在于某个单词，而在于<strong>每个词被分配了不同层级的职责</strong>。他的原话非常清晰：<strong>PARA 是骨架，YAML 是骨架内部的树，K-IR 是缓冲垫，GEPA 处理血肉，Harness 和 Schema 负责把 AI 幻觉束住。</strong>他还给出两个系统目标：<strong>提高解耦性</strong>（模块别互相死咬）和<strong>提升鲁棒性</strong>（面对幻觉、损耗、卡顿仍稳）。</p>
+
+    <div class="quote">
+      <p><span class="who">Silence：</span>"他们仨组合解决的是框架问题，GEPA 解决的是血肉问题。骨头重新排列组合，血肉再填进去，系统才算是一个完整的人。"</p>
+    </div>
+
+    <p class="gist">五个关键词，逐个对齐标准定义</p>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">Harness（马具）= 约束 AI 行为的"缰绳/护栏"层</span><span class="chip">束住幻觉</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>原意是"马具/挽具"。在 AI 工程里，harness 指<strong>把模型套进一个受控流程</strong>的外层框架——规定它什么时候能调用什么、输出要满足什么、出错怎么重试。它治的不是"模型变聪明"，而是"模型别乱跑"。讲话者说"没有马具，AI 这匹马就会乱跑，幻觉就是越界和失控"，非常准确。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>马很有力气，但没缰绳和挽具就拉不了车、还可能踢人。Harness 不让马变快，而是让马的力气用在路上。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>把它实现为一个<strong>状态机 + 校验 + 重试</strong>的执行外壳（见 theme 05 的 FSM Harness）：每步只允许特定动作，输出过 Schema 校验，不合格就回炉。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>缰绳太紧，马跑不动——过度约束会让 AI 失去灵活性、什么都干不成。Harness 的艺术是"<strong>护栏而非笼子</strong>"。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">Schema = 给机器读、给系统校验的"规则层"（不是人读手册）</span><span class="chip">机读契约</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>Schema = <strong>结构契约</strong>：规定数据/输出必须有哪些字段、什么类型、什么取值范围。代表是 <strong>JSON Schema</strong>。讲话者强调"不是人读手册，而是给机器读、给系统校验"——这正是 Schema 的灵魂：它能被程序<strong>自动验证</strong>，不合规直接拦下。在 LLM 场景，它用来强制模型输出可预测的结构。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>像填表的"必填项校验"：你少填一栏、格式不对，表单直接红字打回，根本提交不了。Schema 就是这套自动门禁。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>为每类资产写一份 schema（见 theme 05 的"五张 Schema 薄纸"）；让 AI 的输出先过 schema 校验再入库；把"AI 能做什么"也写进 schema。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>Schema 只能保证"<strong>结构对</strong>"，不能保证"<strong>内容对</strong>"——一个字段类型合法但数值是胡编的，照样过校验。结构校验之外仍需业务规则与人工抽检。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">PARA = 个人知识库的"物理骨架"（项目/领域/资源/归档）</span><span class="chip">目录骨架</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p><strong>PARA</strong> 由 Tiago Forte 提出，是《打造第二大脑》的核心组织法：<strong>P</strong>rojects（有截止线的活跃项目）/ <strong>A</strong>reas（需长期维护的责任领域）/ <strong>R</strong>esources（主题参考资料）/ <strong>A</strong>rchives（归档的非活跃内容）。它的精髓是<strong>按"可行动程度"而非"学科主题"分类</strong>。讲话者把它定位成知识库的"物理骨架"，到位。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>像厨房收纳：正在做的菜放灶台(Projects)、常用调料放手边(Areas)、菜谱书上架(Resources)、过季工具进储藏室(Archives)。按"现在用不用"摆，而不是按"是不是调料"摆。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>仓库/笔记库顶层就建这四个文件夹，新东西先问"它现在可行动吗"再归位；项目结束就从 Projects 移到 Archives。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>PARA 是"<strong>方法</strong>"不是"<strong>范式律法</strong>"——讲话者说"不是固定范式"也对。最大的坑是过度纠结"这到底算 Area 还是 Resource"，分类内耗反而拖累产出。够用就好。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">K-IR = Raw 与 Wiki 之间的"缓冲垫 / 结构化中间表示"</span><span class="chip">缓冲层·全篇关键</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>名字借自编译器的 <strong>IR（Intermediate Representation，中间表示）</strong>：源代码不会一步变机器码，中间先转成一种"便于分析和优化"的中间形态。K-IR = <strong>Knowledge-IR</strong>，让知识不直接从"原始文本(Raw)"硬跳到"成品词条(Wiki)"，中间多一层结构化单元。讲话者说它能"<strong>减少 AI 与 AI 之间的传输损耗</strong>"——这正是 IR 的核心价值：给上下游一个稳定、统一的交换格式。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>像翻译界的"中间语/枢轴语"：中→日→韩别每对都直译，先都翻成一种规范中间语，再各自落地，损耗小、可复用。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>给 K-IR 定义固定字段（theme 05 列了：<code>id / raw_id / type / status / source / value_level / value_score / related_outputs</code>），让每个"知识单元"成为可追踪对象，AI 之间只交换 K-IR、不互相传原始大段文本。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>多一层就多一层维护成本。IR 的价值依赖"<strong>大家都遵守同一份格式</strong>"；如果各处随手改字段，缓冲垫会变成新的混乱源。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">YAML = "骨架内部的树"，让字段/状态被系统看见</span><span class="chip">表达载体</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>YAML 是一种<strong>人类易读的结构化数据格式</strong>，靠缩进表达层级（树状）。它常用来写配置和 frontmatter（md 文件头部的元数据）。讲话者说"不是为了花哨，是为了让规则、字段、状态都能被系统看见"——精确：YAML 的意义是把"隐含信息"变成"机器可读字段"。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>像给每件行李挂上标准化标签（目的地、重量、归属），分拣系统扫一眼就知道怎么处理；纯文本则像行李上只写了一段手写小作文。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>md 文件顶部用 YAML frontmatter 记 <code>status / type / value_level</code> 等；Schema 本身也用 YAML 写。这样 Obsidian / 脚本 / AI 都能读同一份状态。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>YAML 对<strong>缩进和特殊字符极其敏感</strong>，一个空格错位就解析失败；冒号、引号、布尔值（yes/no 会被当真假）都有坑。建议配 schema 校验 + 编辑器提示。</p>
+        </div>
+      </div>
+    </details>
+
+    <p class="gist">两个系统目标，别只当口号</p>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">目标一：提高解耦性 ｜ 目标二：提升鲁棒性</span><span class="chip">工程底色</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p><strong>解耦（decoupling）</strong>：模块间依赖尽量少、接口清晰，改一处不牵连全身。<strong>鲁棒性（robustness）</strong>：面对异常输入、AI 幻觉、流程卡顿仍能稳定运转、优雅降级。这两条是软件工程的通用追求，讲话者把它点成"整份讨论的工程底色"，是把直觉上升到了原则。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>解耦像乐高（一块坏了换一块），强耦合像浇筑的混凝土（动一处砸全墙）。鲁棒像不倒翁，推一下会晃但不会倒。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>解耦靠 K-IR/Schema 这种"稳定接口"把各模块隔开；鲁棒靠 Harness 的校验+重试、以及"AI 只能改草稿不能动已审核资产"的护栏。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>解耦过头会变"过度工程"：层层抽象、接口爆炸，简单事做复杂。早期阶段，<strong>先能跑通，再谈解耦</strong>。</p>
+        </div>
+      </div>
+    </details>
+
+    <div class="cards">
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=PARA+method+Tiago+Forte+explained" target="_blank" rel="noopener">
+        <span class="ic">▶</span><span class="tx"><span class="tt">YouTube：PARA 方法讲解（Tiago Forte）</span><span class="ds">用"可行动程度"组织一切数字信息</span></span>
+      </a>
+      <a class="rc doc" href="https://fortelabs.com/blog/para/" target="_blank" rel="noopener">
+        <span class="ic">¶</span><span class="tx"><span class="tt">原文：The PARA Method（Forte Labs 官方）</span><span class="ds">fortelabs.com/blog/para · PARA 第一手定义</span></span>
+      </a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=JSON+schema+validation+explained" target="_blank" rel="noopener">
+        <span class="ic">▶</span><span class="tx"><span class="tt">YouTube：JSON Schema 校验是什么</span><span class="ds">理解"机读规则层"如何自动拦下不合规数据</span></span>
+      </a>
+      <a class="rc doc" href="https://en.wikipedia.org/wiki/Intermediate_representation" target="_blank" rel="noopener">
+        <span class="ic">¶</span><span class="tx"><span class="tt">资料：Intermediate Representation（编译器中间表示）</span><span class="ds">wikipedia · 理解 K-IR 的灵感来源</span></span>
+      </a>
+    </div>
+  </section>
+
+
+  <!-- ===================== THEME 05 ===================== -->
+  <section id="t5">
+    <div class="theme-head">
+      <p class="kicker">theme 05</p>
+      <h2><span class="bar">"空度"三份提议：把口头直觉展开成工程骨架</span></h2>
+    </div>
+
+    <p>第二份 HTML 文件（"空度"）的作用，不是替代对话，而是把聊天里散落的词<strong>系统化成更清晰的框架</strong>。它强调：这不是三套互相分裂的方案，而是<strong>同一座系统的三层切片</strong>。三份文件分工如下：</p>
+
+    <div class="bullets">
+      <div class="b"><strong>1111.md</strong>：提出骨架，核心词 <code>Schema-as-Code / K-IR / FSM Harness</code></div>
+      <div class="b"><strong>22222.md</strong>：给出模板和目录，核心词 <code>.schema / .ir / .state / raw / wiki / output / harness</code></div>
+      <div class="b"><strong>33333 倡议</strong>：把 AI 权限、价值追踪、E/F 数据反馈、三级晋升，接回"帝国式调度"闭环</div>
+    </div>
+
+    <p>HTML 里有几句和口头表达几乎一一对应，可视作"直觉的工程翻译"：把 SCHEMA.md 变成可执行规则；在 Raw 与 Wiki 之间插一层结构化中间表示；固定流水线太硬，把 Harness 改成状态机；AI 能做什么也必须写进 Schema；Raw 进来后最终变成链接、SOP、Skill 还是灰尘——价值要留下脚印。下面逐块拆。</p>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">Schema-as-Code：把"规范文档"变成"可执行规则"</span><span class="chip">1111.md</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>"Schema-as-Code"承袭 <strong>Everything-as-Code / Policy-as-Code</strong> 思潮：规则不写成给人看的 Word，而写成<strong>能被程序执行和校验</strong>的代码/配置。一句"把 SCHEMA.md 变成可执行规则"，意思是规范不再是摆设，而是会真的把不合规的东西<strong>拦下来</strong>。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>区别在于"贴在墙上的规章"和"刷卡才开的闸机"。前者靠自觉，后者不合规就是过不去。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>把每条规范写成 schema 字段或校验脚本，接到提交/入库环节自动跑；违规即报错。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>可执行规则也要维护和版本管理；规则一旦写死又没人更新，会变成挡路的"僵尸闸机"。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">五张 Schema 薄纸：storage / raw / wiki / output / harness 各管一段</span><span class="chip">职责切分</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>把一份大而全的规则，拆成<strong>五份各管一摊的小 schema</strong>，是"单一职责 + 关注点分离"的体现：</p>
+          <p style="margin-top:8px;"><code>schema_storage.yaml</code> 管目录边界与命名；<code>schema_raw.yaml</code> 管来源与原料状态；<code>schema_wiki.yaml</code> 管词条字段与知识编辑；<code>schema_output.yaml</code> 管交付物类型/版本/受众；<code>schema_harness.yaml</code> 管状态转换、通知与流程规则。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>像一家公司的五本制度手册：行政（目录）、采购（原料）、编辑部（词条）、出版（交付）、调度室（流程）。各管各的，互不打架。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>先只写 <code>storage</code> 和 <code>raw</code> 两张（最先用到的），跑通再补其余三张，避免一次性设计过度。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>切分太细会出现"字段在哪张 schema 里"的归属争议；要留一份总览说明谁管谁，否则五张纸又会乱。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">K-IR 的地位：Raw 是土壤，Wiki 是标本盒，K-IR 是"结构化卵层"</span><span class="chip">三态对比</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>HTML 用了一组很好的比喻：<strong>Raw = 自由文本土壤</strong>（未加工、信息全但乱）；<strong>Wiki = 词条标本盒</strong>（已成型、规整可查）；<strong>K-IR = 知识尚未展开前的"结构化卵层"</strong>（已抽出结构、但还没长成成品）。它必须有自己的身份字段：<code>id / raw_id / type / status / source / value_level / value_score / related_outputs</code>，从而把"知识单元"从口头比喻落成<strong>可追踪对象</strong>。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>土壤里的养分(Raw) → 包好的种子/卵(K-IR) → 长成的标本植株(Wiki)。卵这一层让"养分"可以被搬运、计数、追溯，而不是一摊泥。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>每条 K-IR 用 YAML frontmatter 存上述字段；<code>raw_id</code> 反向链回原料、<code>related_outputs</code> 正向链到成品，形成可双向追溯的链路。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p><code>value_score</code> 这类"价值打分"字段，<strong>谁来打、按什么标准打</strong>必须先定义，否则会变成一堆主观噪声分数，反而误导后续晋升判断。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">FSM 状态机：每个知识单元都该"知道自己在哪、下一步是什么"</span><span class="chip">流程引擎</span></summary>
+      <div class="dd-body">
+        <div class="flow">raw_unprocessed → ir_draft → ir_reviewed → wiki_generated → output_draft → output_reviewed / delivered → archived</div>
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p><strong>FSM（Finite State Machine，有限状态机）</strong>：系统在任一时刻只处于<strong>有限个明确状态之一</strong>，靠"事件"在状态间转移，且只允许预定义的合法转移。把知识单元的生命周期建成 FSM，就回答了那句口头话——"每个单元都该知道自己在哪儿、下一步是什么、是否有交付"。它把"固定流水线"升级成"<strong>可分叉、可回退、可审计</strong>"的流程。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>像快递物流状态：已揽收→运输中→派送中→已签收。你随时能查到包裹在哪一站，且不可能从"已揽收"直接跳到"已签收"——必须按合法路径走。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>用 <code>status</code> 字段表示当前状态；<code>schema_harness.yaml</code> 定义"哪个状态能转到哪个状态、由谁触发、转移时通知谁"。AI/人/脚本都只能按这张表推进。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>状态设计别贪多：状态/转移一旦爆炸（几十个状态互相能跳），维护和调试会噩梦化。先用上面这 7 个主状态跑通，再按真实需要加分支。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">AI Guard：把"AI 会不会越权"工程化为明确权限</span><span class="chip">权限护栏</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>口头那句"真正的问题不是能不能自动化，而是 AI 会不会越权"，被翻成了<strong>最小权限原则（least privilege）</strong>：AI <strong>只能</strong>读 Raw/K-IR、生成草稿、更新 frontmatter；<strong>不能</strong>改已审核资产、不能删、不能移、不能改 Schema。本质是把 AI 限定成"<strong>通过 K-IR 与系统交互的加工助手</strong>"，而不是有 root 权限的管理员。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>像实习生权限：能写草稿、能填表，但删库、改制度、动正式档案的钥匙不给他。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>把"允许的动作"写进 schema（白名单），其余默认禁止；已审核资产设为只读；所有 AI 写操作只落在 <code>*_draft</code> 状态与 frontmatter 上。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>白名单要随能力扩展更新，否则会卡住正常自动化；同时要防"<strong>权限绕过</strong>"——比如 AI 通过生成误导性草稿间接影响审核者。护栏 + 人审要并存。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">Value Trace + 三级晋升 + E/F 区闭环：让"价值留下脚印"</span><span class="chip">33333 倡议</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>把"Raw 进来后变成链接、SOP、Skill 还是灰尘"做成可追踪的<strong>价值链路（Value Trace）</strong>与<strong>晋升机制</strong>：<strong>Level 1 沉淀为链接</strong> → <strong>Level 2 固化为 SOP</strong>（标准作业流程）→ <strong>Level 3 升级为 Skill</strong>（可复用能力/技能模块）；再由 <strong>F 区数据回流</strong>和 <strong>E 区审计</strong>形成闭环。"帝国式调度"是讲话者对这套自上而下统一调度的形象叫法。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>像员工成长路径：一条灵光(链接) → 写成可复制的流程(SOP) → 训练成团队通用技能(Skill)。每升一级，价值复用面就更大。没用的就标成"灰尘"沉底。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>用 <code>value_level</code> 记录当前级别，<code>related_outputs</code> 记录它产出过什么；F 区收集"用了多少次/效果如何"的数据回流，E 区定期审计哪些该晋升、哪些该归档。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>晋升标准若不量化，会变成"谁声音大谁的东西升级"。务必先定义 L1→L2→L3 的<strong>客观门槛</strong>（如被复用次数、节省工时），让数据而非感觉决定晋升。</p>
+        </div>
+      </div>
+    </details>
+
+    <div class="cards">
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=finite+state+machine+explained+beginners" target="_blank" rel="noopener">
+        <span class="ic">▶</span><span class="tx"><span class="tt">YouTube：有限状态机(FSM)入门讲解</span><span class="ds">理解状态、转移、事件——知识单元生命周期的引擎</span></span>
+      </a>
+      <a class="rc doc" href="https://www.freecodecamp.org/news/finite-state-machines/" target="_blank" rel="noopener">
+        <span class="ic">¶</span><span class="tx"><span class="tt">文章：Finite State Machine Explained</span><span class="ds">freeCodeCamp · FSM 作为软件设计模式的通俗讲解</span></span>
+      </a>
+      <a class="rc doc" href="https://json-schema.org/blog/posts/json-schema-in-5-minutes" target="_blank" rel="noopener">
+        <span class="ic">¶</span><span class="tx"><span class="tt">文章：JSON Schema in 5 minutes</span><span class="ds">json-schema.org · "可执行规则层"的官方上手</span></span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===================== THEME 06 ===================== -->
+  <section id="t6">
+    <div class="theme-head">
+      <p class="kicker">theme 06</p>
+      <h2><span class="bar">BNY 的落地方法：context.md、网页步骤书、云端记忆</span></h2>
+    </div>
+
+    <p>后半段最值钱的，是 BNY 在回填一套<strong>可立刻照做的 AI 工作方法</strong>。他的核心观点很朴素：<strong>没有上下文，AI 就不是真聪明</strong>；所以每次交互不该只留结果，还要把"问题 + 回答"沉淀进文档，让下一次新窗口能直接接上。</p>
+
+    <div class="quote">
+      <p><span class="who">BNY 搭：</span>"主要是文章不够，得有执行手册。整理完之后，AI 才知道我们以前是怎么一步一步过来的，它下一步就能直接执行。"</p>
+    </div>
+
+    <p class="gist">四件落地工具，逐个讲清</p>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">context.md：把"我的问题 + 你的回答"持续沉淀，下次复用</span><span class="chip">上下文工程</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>这正是 2025 年起火起来的"<strong>上下文工程（Context Engineering）</strong>"：不再只打磨一句 prompt，而是<strong>系统地管理"模型每一步该看到什么信息"</strong>。<code>context.md</code> 就是一份手工维护的"长期记忆/项目交接文档"，解决 LLM"开新窗口就失忆"的根本痛点。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>像给接班同事留的交接本：他不用从头问，翻一遍就知道项目来龙去脉、决策理由、当前进度。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>每轮对话结束，让 AI 把"问题 + 关键结论 + 下一步"追加进 <code>context.md</code>；新会话开头先把它喂进去。它就是后台 K-IR 思路在"人机协作"层的轻量版。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>context.md 会越长越臃肿，塞爆上下文窗口反而降智。要定期<strong>压缩/分层</strong>（摘要 + 归档细节），只保留对当前任务有用的部分。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">说明文档 / 执行手册：给 AI 问题脉络 + 行动步骤，而非一篇文章</span><span class="chip">SOP 化</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>BNY 在区分"<strong>知识（是什么）</strong>"和"<strong>流程（怎么一步步做）</strong>"。只发文章，AI 知道概念但不知道你们的具体打法；给"执行手册（SOP）"，AI 才能接着上一步往下做。这和 theme 05 的"L2 SOP 化"是同一件事，只是从人的视角说。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>菜谱 vs 美食评论：评论告诉你"这菜好吃"，菜谱告诉你"先放油、再下蒜、爆香 30 秒"。AI 要的是菜谱。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>把反复要做的事写成编号步骤 + 输入/输出 + 判定标准，存成 SOP 文档；让 AI 按 SOP 执行而不是即兴发挥。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>SOP 会过时。流程一变就要更新，否则 AI 会严格执行一套<strong>已经错的</strong>步骤——比没有 SOP 更危险。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">HTML 网页步骤书：左边结果、右边步骤，"执行的手"与"处理的大脑"并行</span><span class="chip">交互形态</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>当 md 看着不够直观，就让 AI 直接生成网页：一侧展示<strong>结果/产物</strong>，一侧展示<strong>步骤/推理</strong>。本质是把"<strong>做了什么</strong>"和"<strong>为什么这么做</strong>"<strong>同屏可见</strong>，降低人核对的认知负担。<em>——你现在看的这一页，正是这种"网页步骤书"的实践之一。</em></p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>像视频教程的"画中画"：大画面演操作，小窗显讲解。眼睛不用在两个文件间来回切。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>让 AI 输出单文件 HTML（自带样式、可双击打开、易分享），左右分栏或上下分块；步骤可折叠，方便深浅两读。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>网页是"<strong>展示层</strong>"，不是"<strong>数据源</strong>"。漂亮的页面别取代结构化数据（K-IR/YAML），否则信息只在 HTML 里、机器难再加工。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">云端记忆：本地 Obsidian 拉不全所有平台内容</span><span class="chip">取舍</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>BNY 的现实判断：本地 Obsidian 擅长"自己写的 md 沉淀"，但<strong>很难自动汇聚散落在各平台</strong>的内容；对高频项目管理，云端网页端的<strong>长期记忆与跨源汇总</strong>能力更顶用。这其实是"本地优先"与"云端记忆"的取舍，不是谁全胜。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>本地像私人书房（安静、可控、但只放自己搬进来的书）；云端像图书馆联机系统（能跨馆调阅，但要联网、要信任平台）。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>分工：日常高频汇总/记忆放云端，定稿沉淀回本地 Obsidian 长期保存，形成"云端进、本地存"的双层。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>云端记忆涉及<strong>隐私、数据归属、可迁移性</strong>：平台关停或改政策，记忆可能带不走。重要资产务必回流到自己掌控的本地/仓库。</p>
+        </div>
+      </div>
+    </details>
+
+    <div class="cards">
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=context+engineering+LLM+agents+explained" target="_blank" rel="noopener">
+        <span class="ic">▶</span><span class="tx"><span class="tt">YouTube：上下文工程(Context Engineering)讲解</span><span class="ds">为什么"管理上下文"比"调一句 prompt"更重要</span></span>
+      </a>
+      <a class="rc doc" href="https://arxiv.org/abs/2507.13334" target="_blank" rel="noopener">
+        <span class="ic">¶</span><span class="tx"><span class="tt">综述：A Survey of Context Engineering for LLMs</span><span class="ds">arxiv.org/abs/2507.13334 · 上下文工程的系统性梳理</span></span>
+      </a>
+    </div>
+  </section>
+
+
+  <!-- ===================== THEME 07 ===================== -->
+  <section id="t7">
+    <div class="theme-head">
+      <p class="kicker">theme 07</p>
+      <h2><span class="bar">GitHub、终端、IDE、Obsidian：在补同一条技术通道</span></h2>
+    </div>
+
+    <p>这段对话看着碎，其实在搭一条完整能力链：<strong>从"只会看 md" → "能把 GitHub 项目拉下来 → 交给 AI 解构 → 逐步落地"</strong>。讲话者的问题很真实：GitHub 怎么搜热门插件、项目怎么下、终端/IDE/Obsidian 各干什么。BNY 点破：你不是在问"怎么下一个项目"，你是在补"<strong>怎么把一个源代码资产纳入自己的 AI 工作流</strong>"这条能力链。下面把四个工具的定位讲清。</p>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">搜 GitHub 项目：直接 Google 加 "github" 关键词往往更快</span><span class="chip">实操技巧</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>GitHub 站内搜索对"模糊需求"不够友好；用通用搜索引擎 + <code>github</code> + 关键词，能借全网的标题、博客、Awesome 列表帮你定位到对的仓库。属于"<strong>用外部索引绕过站内搜索弱项</strong>"的常见技巧。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>试：<code>关键词 + github</code>、<code>awesome + 主题</code>（社区精选清单）、或在 GitHub 内按 <strong>Stars 排序</strong> + 看最近更新时间判断活跃度。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>Star 多 ≠ 适合你/还在维护。下手前看 <strong>最近提交时间、Issues 活跃度、License、README</strong>，避免拉个已弃坑的库。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">终端 vs IDE vs Obsidian：三者到底各干什么</span><span class="chip">定位区分</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p><strong>终端（Terminal）</strong>=最底层的命令行能力，敲指令直接驱动系统（拉项目、跑脚本、自动化）。<strong>IDE</strong>（如 VS Code）=把"终端 + 代码树 + 文件可视化 + 编辑/调试"<strong>打包在一起的开发环境</strong>。<strong>Obsidian</strong>=本地 md 知识库，强在文档沉淀与双向链接，但对 <code>py / yml</code> 和项目代码的可视化支持有限。BNY 总结得好：<strong>终端是能力，IDE 是把项目整体呈现出来的环境</strong>。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>终端像"手动挡发动机直连"（最强控制、上手陡）；IDE 像"装好仪表盘和倒车影像的整车"（同样能开，但看得见全局）；Obsidian 像"随身笔记本"（记录与连点子，不是用来开车的）。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>分工用：<strong>Obsidian 管文档/知识</strong>，<strong>IDE 管项目开发/读代码</strong>，<strong>终端管高频调度与自动化</strong>。三者配合，正好覆盖"看懂、改动、自动跑"。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>别用错工具：在 Obsidian 里硬啃大型代码项目会很痛苦；也别只守着终端而拒绝 IDE 的全局视图。工具是手段，匹配任务才高效。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">问题的本质：把"源代码资产"纳入自己的 AI 工作流</span><span class="chip">能力链</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>BNY 把零碎问题归并成一条主线：<strong>发现仓库 → clone 拉到本地 → 用 IDE/AI 读懂结构 → 交给 AI 解构与改造 → 接进自己的流程</strong>。这就是"开源为我所用"的标准路径，也是 theme 03"城中区试运行"能落地的前提设施。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>给自己定一条最小练习：找一个小仓库 → <code>git clone</code> → 让 AI 通读并产出"它是干嘛的、怎么跑、关键文件在哪"的解构笔记 → 改一个小功能跑通。走一遍，这条能力链就活了。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>拉别人代码注意 <strong>License 与安全</strong>：别直接跑来路不明的脚本、别把密钥提交进仓库。把开源当原料，但要过一遍"安全 + 许可"的筛子。</p>
+        </div>
+      </div>
+    </details>
+
+    <div class="cards">
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=git+and+github+for+beginners+clone+repository" target="_blank" rel="noopener">
+        <span class="ic">▶</span><span class="tx"><span class="tt">YouTube：Git & GitHub 入门（clone 项目）</span><span class="ds">从零学会把仓库拉到本地、提交、推送</span></span>
+      </a>
+      <a class="rc doc" href="https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository" target="_blank" rel="noopener">
+        <span class="ic">¶</span><span class="tx"><span class="tt">官方文档：Cloning a repository（GitHub Docs）</span><span class="ds">docs.github.com · clone 的权威步骤</span></span>
+      </a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=Obsidian+for+beginners+getting+started" target="_blank" rel="noopener">
+        <span class="ic">▶</span><span class="tx"><span class="tt">YouTube：Obsidian 入门</span><span class="ds">理解本地 md 知识库与双向链接</span></span>
+      </a>
+      <a class="rc doc" href="https://www.anthropic.com/claude-code" target="_blank" rel="noopener">
+        <span class="ic">¶</span><span class="tx"><span class="tt">资料：Claude Code（终端里的 AI 编码代理）</span><span class="ds">anthropic.com/claude-code · "交给 AI 解构项目"的代表工具</span></span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===================== THEME 08 ===================== -->
+  <section id="t8">
+    <div class="theme-head">
+      <p class="kicker">theme 08</p>
+      <h2><span class="bar">Nuwa 技能、人物蒸馏，与"形 / 法 / 神"的区别</span></h2>
+    </div>
+
+    <p>这一节抛出一个尖锐问题：把对话整理成"宝玉风格"PPT/页面，和 Nuwa 的"蒸馏"到底差在哪？BNY 的例子很有辨识度：他<strong>不是把外教老师整个人格复制出来</strong>，而是把对方<strong>解释词汇的方式、向下兼容能力、表达框架</strong>提取出来，再用那种方式去解释新的法语词。换句话说——风格模仿只仿"<strong>形</strong>"，真正的蒸馏要能改变 AI 的<strong>内部解题路径</strong>。</p>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">先正名："蒸馏(distillation)"在 AI 里的标准含义</span><span class="chip">术语</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>严格意义的<strong>知识蒸馏（Knowledge Distillation, Hinton 等）</strong>：用一个大"<strong>教师模型</strong>"的输出来训练一个小"<strong>学生模型</strong>"，让小模型学会大模型的行为。但本节讲的是<strong>提示词层面的"风格/方法迁移"</strong>——不训练新模型，而是用提示把某种"讲法/视角"复制给 AI。两者都叫"蒸馏"，但一个改权重、一个改提示，层级不同。讲话者的"形/法/神"恰好给了一个更细的分层。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>对外别把"提示词风格迁移"说成"知识蒸馏"，容易和训练级蒸馏混淆。叫"<strong>风格/方法提取</strong>"或"角色提示"更准确。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">蒸馏"形"：版式 / 表达外观 / 结构框架（如宝玉风格、PPT 风格）</span><span class="chip">最浅层</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>"形"= 可见的<strong>外观与结构模板</strong>：配色、排版、章节骨架、措辞腔调。复制"形"改变的是<strong>输出长什么样</strong>，不改变<strong>怎么想</strong>。本页用的"宝玉风格"就属于蒸馏"形"。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>像换了套西装：人还是那个人，思路没变，只是看起来更体面。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>给 AI 一份"风格规范 + 样例"，让它套版输出。成本低、见效快，适合统一品牌观感。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>只仿形容易"金玉其外"——版面漂亮但内容空。形必须服务于内容，不能用排版掩盖思考的缺失。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">蒸馏"法"：可迁移的认知方式与讲解路径（外教解释词汇的方法）</span><span class="chip">中层·最实用</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>"法"= <strong>方法论/解题路径</strong>：外教不是把答案给你，而是有一套"如何拆解、如何向下兼容到你的水平、用什么框架表达"的<strong>稳定套路</strong>。蒸馏"法"改变的是 AI <strong>处理问题的步骤</strong>，所以迁移到新词、新题也成立。这是 BNY 强调的重点，也是 theme 06"SOP 化"在认知层的版本。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>授人以渔：不是给你这条鱼（答案/形），是把"怎么找鱼群、怎么下网"的方法装进你脑子，换片海也能用。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>把范例对象的"<strong>解题步骤</strong>"显式写出来（先做什么、再做什么、用什么判断标准），做成可复用的"方法提示"，让 AI 按这套路处理新输入。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>"法"难提取——你得真看懂高手为什么这么做，否则提取出的是"伪步骤"。需要多个样例归纳，单一样例容易抽偏。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">蒸馏"神"(人格)：决策视角模板 + 角色扮演式推理（大佬圆桌/角色群聊）</span><span class="chip">最深层</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>"神/人格"= 一整套<strong>价值取向 + 决策视角 + 推理偏好</strong>。让 AI 扮演"商业大佬圆桌"或多角色群聊，本质是<strong>多视角推理（persona / role-play prompting）</strong>：用不同人格各自的立场去碰撞同一问题。它改变的不只是步骤，而是<strong>从什么立场看世界</strong>。</p>
+        </div>
+        <div class="layer"><span class="tag analogy">类比</span>
+          <p>像请一桌顾问：投资人、产品经理、用户代表各说各话，你听到的是被多重立场打磨过的判断，而非单线答案。</p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>为每个角色写"它在乎什么、怕什么、口头禅与判断标准"，让它们就同一议题分别发言再综合。适合做决策预演与盲点排查。</p>
+        </div>
+        <div class="layer"><span class="tag risk">风险边界</span>
+          <p>角色越鲜明越容易<strong>刻板化/失真</strong>——AI 演的"马斯克"不是真马斯克。它能帮你换视角，但<strong>不能当成本人的真实意见</strong>来背书决策。</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">回答那个尖锐问题：宝玉风格整理 vs Nuwa 蒸馏，差在哪</span><span class="chip">收束</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">正本清源</span>
+          <p>把对话排成宝玉风格页面，是蒸馏"<strong>形</strong>"——改的是<strong>呈现</strong>。Nuwa 真正想做的蒸馏，是"<strong>法</strong>"和"<strong>神</strong>"——改的是 AI <strong>解题路径与决策视角</strong>。所以：<strong>能让 AI 像那个老师一样去解释、像那个角色一样去决策、像那个系统一样去组织知识，才叫蒸馏；只是排得好看，那是套版。</strong></p>
+        </div>
+        <div class="layer"><span class="tag howto">怎么落地</span>
+          <p>做任何"风格化"前先自问：我要复制的是<strong>外观(形)</strong>、<strong>方法(法)</strong>，还是<strong>视角(神)</strong>？目标不同，提取的素材和验收标准完全不同。</p>
+        </div>
+      </div>
+    </details>
+
+    <div class="cards">
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=knowledge+distillation+teacher+student+model+explained" target="_blank" rel="noopener">
+        <span class="ic">▶</span><span class="tx"><span class="tt">YouTube：知识蒸馏(教师-学生模型)讲解</span><span class="ds">区分"训练级蒸馏"与"提示级风格迁移"</span></span>
+      </a>
+      <a class="rc doc" href="https://www.ibm.com/think/topics/knowledge-distillation" target="_blank" rel="noopener">
+        <span class="ic">¶</span><span class="tx"><span class="tt">文章：What is Knowledge Distillation?（IBM）</span><span class="ds">ibm.com · 知识蒸馏的标准定义与在 LLM 上的用法</span></span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===================== THEME 09 ===================== -->
+  <section id="t9">
+    <div class="theme-head">
+      <p class="kicker">theme 09</p>
+      <h2><span class="bar">这场对话最后沉出来的几个结论</span></h2>
+    </div>
+
+    <div class="bullets">
+      <div class="b">你这边的主突破，不是单个工具，而是把<strong>知识生产</strong>理解成一条完整链路：<strong>原料进入 → 结构缓冲 → 状态流转 → 权限约束 → 价值回流</strong>。</div>
+      <div class="b">BNY 这边的主贡献，不是替代这套系统，而是教你<strong>怎么让 AI 真的接上项目</strong>：上下文沉淀、说明手册、网页步骤书、终端与 IDE 的通道补齐。</div>
+      <div class="b">"空度"这份 HTML 的价值，是把口头里分散的概念，<strong>锚定成一套可试运行的工程草图</strong>。</div>
+      <div class="b">单词卡系统与知识编译系统<strong>不是两件事</strong>：前者偏用户前端粘性与学习反馈，后者偏后台知识加工与 AI 调度，两者最终都指向<strong>长期价值与系统复用</strong>。</div>
+    </div>
+
+    <div class="note-box">
+      <p class="t">一句话收束</p>
+      <p style="margin:0;font-size:13.8px;line-height:1.85;color:#55514a;">你们这场 S31，不是在聊几个零散点子，而是在把<strong>"教育粘性设计 + AI 知识编译 + 工作流落地方法"</strong>三条线开始并轨。</p>
+    </div>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">把全篇压成一张"心智地图"</span><span class="chip">总览</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag origin">三条线如何咬合</span>
+          <p><strong>C（BNY 的落地方法）是地基</strong>：没有 context.md、SOP、能拉项目的通道，A 和 B 都飘在空中。<strong>B（知识编译系统）是后台中枢</strong>：PARA 搭骨架、K-IR 做缓冲、FSM 管流转、Schema/Harness 上护栏、GEPA 式反思做优化。<strong>A（单词卡游戏化）是前台样板间</strong>：它本身是产品，也是 B 的第一个"城中区"试点——用真实业务驱动后台系统跑起来。</p>
+        </div>
+        <div class="layer"><span class="tag howto">一句话记忆</span>
+          <p>"<strong>前台用游戏化抓人，后台用编译系统沉淀，中间用上下文方法把 AI 焊进流程。</strong>"</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===================== NEXT ===================== -->
+  <section id="next">
+    <div class="theme-head">
+      <p class="kicker">next</p>
+      <h2><span class="bar">对话里已经明确的下一步（含怎么做）</span></h2>
+    </div>
+
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">① 把 Claude / Claude Code 用起来，打通账号·手机号·网页端记忆链</span><span class="chip">工具就位</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag howto">怎么做</span><p>先把账号与登录链路理顺；网页端用于"长期记忆/汇总"，Claude Code 用于"在终端里读改项目"。目标是让 AI 既记得住、又动得了手。</p></div>
+        <div class="layer"><span class="tag risk">注意</span><p>账号/手机号等敏感信息别写进任何会被提交的文档或 context.md。</p></div>
+      </div>
+    </details>
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">② 把 "GitHub 搜索 → 拉项目 → 交 AI 解构" 这条基础通道练熟</span><span class="chip">能力链</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag howto">怎么做</span><p>照 theme 07 的最小练习走一遍：找小仓库 → clone → AI 产出解构笔记 → 改一个小功能跑通。</p></div>
+      </div>
+    </details>
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">③ 让 BNY 对 schema / harness / para / K-IR / GEPA 组合拳给反思与反馈</span><span class="chip">评审</span></summary>
+      <div class="dd-body">
+        <div class="layer"><span class="tag howto">怎么做</span><p>带着本页的"风险边界"逐条过：哪里过度设计、哪里命名会引歧义（尤其 GEPA/JEPA）、哪里该先砍掉。</p></div>
+      </div>
+    </details>
+    <details class="dd">
+      <summary><span class="arw">▸</span><span class="lbl">④ 让一条真实素材先跑通：Raw → K-IR → Wiki → Output → Feedback</span><span class="chip">城中区试点</span></summary>
+      <div class="dd-body">
+        <div class="flow">Raw → K-IR → Wiki → Output → Feedback</div>
+        <div class="layer"><span class="tag howto">怎么做</span><p>就拿这次的 S31 对话稿当第一条素材：原文是 Raw，本页的拆解卡片接近 K-IR/Wiki，HTML 是 Output；下一步收集"读完是否真的看懂"的 Feedback，回流改进。<strong>本页其实就是这条流水线的第一次实跑。</strong></p></div>
+        <div class="layer"><span class="tag risk">注意</span><p>第一遍别追求完美闭环，重点是<strong>记录每一站的损耗与卡点</strong>，作为推广前的"毕业标准"依据。</p></div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===================== RESOURCES ===================== -->
+  <section id="res">
+    <div class="theme-head">
+      <p class="kicker">library</p>
+      <h2><span class="bar">资料库：每个概念一条 YouTube 入口 + 一条权威来源</span></h2>
+    </div>
+    <p style="font-size:13.5px;color:var(--muted);">下面是全页出现过的核心概念的集中索引，方便你逐个补课。视频为 YouTube 检索入口（点开即相关视频列表），右列为可访问的权威文章/论文。</p>
+
+    <div class="cards">
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=Yann+LeCun+JEPA+world+model+explained" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">JEPA / 世界模型（Yann LeCun）</span><span class="ds">arxiv.org/abs/2403.00504</span></span></a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=GEPA+DSPy+reflective+prompt+optimization" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">GEPA 反思式提示词进化</span><span class="ds">arxiv.org/abs/2507.19457 · dspy.ai</span></span></a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=focused+vs+diffuse+mode+learning" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">孵化效应 / 专注·发散模式</span><span class="ds">fs.blog/spacing-effect</span></span></a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=spaced+repetition+Anki+how+it+works" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">间隔重复 / Anki</span><span class="ds">ncase.me/remember（互动演示）</span></span></a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=variable+ratio+reinforcement+gacha+psychology" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">变比强化 / 抽卡心理</span><span class="ds">B.F. Skinner 行为强化理论</span></span></a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=PARA+method+Tiago+Forte" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">PARA 组织法</span><span class="ds">fortelabs.com/blog/para</span></span></a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=JSON+schema+validation+explained" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">JSON Schema / 机读规则</span><span class="ds">json-schema.org</span></span></a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=finite+state+machine+explained+beginners" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">有限状态机 FSM</span><span class="ds">freecodecamp.org/news/finite-state-machines</span></span></a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=compiler+intermediate+representation+explained" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">中间表示 IR（K-IR 的灵感）</span><span class="ds">en.wikipedia.org/wiki/Intermediate_representation</span></span></a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=context+engineering+LLM+agents" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">上下文工程</span><span class="ds">arxiv.org/abs/2507.13334</span></span></a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=knowledge+distillation+teacher+student+model" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">知识蒸馏</span><span class="ds">ibm.com/think/topics/knowledge-distillation</span></span></a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=git+and+github+for+beginners" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">Git / GitHub 入门</span><span class="ds">docs.github.com</span></span></a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=Obsidian+for+beginners" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">Obsidian 入门</span><span class="ds">obsidian.rocks</span></span></a>
+      <a class="rc yt" href="https://www.youtube.com/results?search_query=Claude+Code+tutorial+terminal+agent" target="_blank" rel="noopener"><span class="ic">▶</span><span class="tx"><span class="tt">Claude Code（终端 AI 代理）</span><span class="ds">anthropic.com/claude-code</span></span></a>
+    </div>
+  </section>
+
+  <div class="endcap">
+    <p style="font-family:var(--mono);letter-spacing:1px;">END · S31 DEEP-DIVE · 让每个点都讲透</p>
+    <p>本页基于 S31-对话深编-宝玉风格.md 逐点拆解、纠错与扩展　·　外部内容均为转述　·　视频用检索入口以保长期有效</p>
+  </div>
+
+</div>
+
+<button class="backtop" id="backtop" aria-label="回到顶部">↑</button>
+
+<script>
+  // reading progress bar
+  var bar = document.getElementById('progress');
+  var backtop = document.getElementById('backtop');
+  function onScroll(){
+    var h = document.documentElement;
+    var scrolled = h.scrollTop;
+    var max = h.scrollHeight - h.clientHeight;
+    var pct = max > 0 ? (scrolled / max) * 100 : 0;
+    bar.style.width = pct + '%';
+    if(scrolled > 600){ backtop.classList.add('show'); } else { backtop.classList.remove('show'); }
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+  backtop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+
+  // expand / collapse all
+  var btn = document.getElementById('toggleAll');
+  var expanded = false;
+  btn.addEventListener('click', function(){
+    expanded = !expanded;
+    document.querySelectorAll('details.dd').forEach(function(d){ d.open = expanded; });
+    btn.textContent = expanded ? '收起全部 ▴' : '展开全部 ▾';
+  });
+
+  // active nav highlight
+  var sections = Array.prototype.slice.call(document.querySelectorAll('section[id]'));
+  var navlinks = Array.prototype.slice.call(document.querySelectorAll('.navlinks a'));
+  function highlight(){
+    var pos = window.scrollY + 120;
+    var current = sections[0] ? sections[0].id : null;
+    sections.forEach(function(s){ if(s.offsetTop <= pos){ current = s.id; } });
+    navlinks.forEach(function(a){
+      var on = a.getAttribute('href') === '#' + current;
+      a.style.color = on ? 'var(--accent)' : 'var(--muted)';
+      a.style.fontWeight = on ? '700' : '400';
+    });
+  }
+  window.addEventListener('scroll', highlight, {passive:true});
+  highlight();
+</script>
+</body>
+</html>
